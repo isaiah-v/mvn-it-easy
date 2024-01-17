@@ -1,0 +1,5 @@
+mvn:
+  # supported types: file-system
+  type: file-system
+  file-system:
+    directory: ./mvn
