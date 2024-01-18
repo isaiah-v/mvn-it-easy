@@ -1,5 +1,9 @@
 mvn:
-  # supported types: file-system
-  type: file-system
+  type: file-system # supported types: file-system
+  public: true      # if true, read operations are allowed by anyone
+  admin:
+    username: admin
+    password: password
   file-system:
-    directory: ./mvn
+    password-file: ./mvn/mvn.password
+    repository: ./mvn/www

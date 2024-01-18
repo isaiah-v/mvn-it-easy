@@ -1,8 +1,9 @@
-package org.ivcode.mvn.services
+package org.ivcode.mvn.services.filesystem
 
 import org.ivcode.mvn.exceptions.ConflictException
 import org.ivcode.mvn.exceptions.ForbiddenException
 import org.ivcode.mvn.exceptions.NotFoundException
+import org.ivcode.mvn.services.MvnService
 import org.ivcode.mvn.services.models.ResourceChildInfo
 import org.ivcode.mvn.services.models.ResourceInfo
 import org.ivcode.mvn.util.*
@@ -22,7 +23,7 @@ import kotlin.io.path.*
 @Service
 @ConditionalOnProperty(value = ["mvn.type"], havingValue = "file-system", matchIfMissing = false)
 public class MvnServiceFileSystemImpl (
-    @Value("\${mvn.file-system.directory}") mvnRoot: Path
+    @Value("\${mvn.file-system.repository}") mvnRoot: Path
 ) : MvnService {
     private final val root: Path = mvnRoot.full()
 
