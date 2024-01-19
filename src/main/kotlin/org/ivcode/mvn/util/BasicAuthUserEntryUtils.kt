@@ -14,7 +14,7 @@ public fun BasicAuthUserEntry.Companion.read(file: Path): Set<BasicAuthUserEntry
             val line = it.trim()
 
             if(line.isNotEmpty()) {
-                val validRoles = BasicAuthRole.entries.map { role -> role.roleName() }
+                val validRoles = BasicAuthRole.entries.map { role -> role }
 
                 val userEntry = try {
                     BasicAuthUserEntry.createFromString(it)
@@ -41,6 +41,9 @@ public fun BasicAuthUserEntry.Companion.write(file: Path, userEntries: Set<Basic
 }
 
 public fun BasicAuthUserEntry.Companion.createFromString(string: String): BasicAuthUserEntry {
+
+    val pairs = mapOf(*BasicAuthRole.entries.stream().map { role -> role.roleName() to role }.toList().toTypedArray())
+
     val parts = string.split(":")
     if(parts.size!=3) {
         throw IllegalArgumentException("Invalid user-role-hash string")
@@ -48,7 +51,7 @@ public fun BasicAuthUserEntry.Companion.createFromString(string: String): BasicA
 
     return BasicAuthUserEntry (
         username = parts[0],
-        role = parts[1],
+        role = pairs[parts[1]] ?: throw IllegalArgumentException("invalid role: ${parts[1]}"),
         hashcode = parts[2]
     )
 }
@@ -56,7 +59,7 @@ public fun BasicAuthUserEntry.Companion.createFromString(string: String): BasicA
 public fun BasicAuthUserEntry.Companion.hash(username: String, role: BasicAuthRole, password: String): BasicAuthUserEntry {
     return BasicAuthUserEntry (
         username = username,
-        role = role.roleName(),
+        role = role,
         hashcode = "${username}:${role.roleName()}:${password}".md5()
     )
 }

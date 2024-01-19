@@ -1,4 +1,4 @@
-package org.ivcode.mvn.services.filesystem
+package org.ivcode.mvn.impl.filesystem.services
 
 import org.ivcode.mvn.services.BasicAuthService
 import org.ivcode.mvn.services.models.BasicAuthRole
@@ -10,8 +10,6 @@ import org.ivcode.mvn.util.hash
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import org.springframework.util.DigestUtils
-import java.util.*
 
 @Service
 @ConditionalOnProperty(value = ["mvn.type"], havingValue = "file-system", matchIfMissing = false)
@@ -35,9 +33,9 @@ public class BasicAuthServiceFileSystemImpl(
         )
     }
 
-    override fun authorize(username: String, password: String): BasicAuthorization? {
+    override fun authorize(username: String, password: String): BasicAuthorization {
 
-        val roles = mutableListOf<String>()
+        val roles = mutableListOf<BasicAuthRole>()
 
         for(role in BasicAuthRole.entries) {
             val entry = BasicAuthUserEntry.hash(username, role, password)
@@ -46,15 +44,11 @@ public class BasicAuthServiceFileSystemImpl(
             }
         }
 
-        return if(roles.isNotEmpty()) {
-            BasicAuthorization(
-                isAuthorized = true,
-                username = username,
-                roles = roles
-            )
-        } else {
-            null
-        }
+        return BasicAuthorization(
+            isAuthorized = roles.isNotEmpty(),
+            username = username,
+            roles = roles
+        )
     }
 }
 

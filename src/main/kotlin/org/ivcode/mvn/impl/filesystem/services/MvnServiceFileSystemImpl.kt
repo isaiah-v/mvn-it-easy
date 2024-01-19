@@ -1,4 +1,4 @@
-package org.ivcode.mvn.services.filesystem
+package org.ivcode.mvn.impl.filesystem.services
 
 import org.ivcode.mvn.exceptions.ConflictException
 import org.ivcode.mvn.exceptions.ForbiddenException

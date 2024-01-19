@@ -15,11 +15,11 @@ public class BasicAuthAuthenticationProvider (
         val password = authentication.credentials.toString()
 
         val basicAuth = basicAuthService.authorize(username, password)
-        return if(basicAuth==null || !basicAuth.isAuthorized) {
-            null
-        } else {
-            val authorities = basicAuth.roles.map { role -> SimpleGrantedAuthority(role) }
+        return if(basicAuth.isAuthorized) {
+            val authorities = basicAuth.roles.map { role -> SimpleGrantedAuthority(role.roleName()) }
             UsernamePasswordAuthenticationToken(username, password, authorities)
+        } else {
+            null
         }
     }
 

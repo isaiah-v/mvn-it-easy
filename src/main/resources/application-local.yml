@@ -1,9 +1,18 @@
 mvn:
-  type: file-system # supported types: file-system
-  public: true      # if true, read operations are allowed by anyone
+
+  # supported implementation types: file-system
+  type: file-system
+
+  # if true, read operations are allowed by anyone
+  public: true
+
+  # Admin credentials
+  # This value creates an admin user. It's not required if an admin already exists
   admin:
     username: admin
     password: password
+
+  # The file-system implementation parameters
   file-system:
     password-file: ./mvn/mvn.password
     repository: ./mvn/www

@@ -23,6 +23,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // Freemarker
+    implementation("org.freemarker:freemarker")
+
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 

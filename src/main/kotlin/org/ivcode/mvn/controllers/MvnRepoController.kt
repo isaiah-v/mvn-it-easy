@@ -1,8 +1,12 @@
 package org.ivcode.mvn.controllers
 
+import freemarker.template.Template
 import jakarta.servlet.ServletContext
 import org.ivcode.mvn.exceptions.NotFoundException
 import org.ivcode.mvn.services.MvnService
+import org.ivcode.mvn.util.toFreemarkerDataModel
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -13,13 +17,13 @@ import java.io.InputStream
 import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.relativeTo
 
 @Controller
 @RequestMapping
 public class MvnRepoController (
     private val repo: MvnService,
-    private val servletContext: ServletContext
+    private val servletContext: ServletContext,
+    @Qualifier("ftl.template.directory") private val directoryTemplate: Template
 ) {
 
     @RequestMapping(method = [RequestMethod.GET], path = ["/**"])
@@ -28,8 +32,9 @@ public class MvnRepoController (
         val pathInfo = repo.getPathInfo(getPath(request.url))
 
         if(pathInfo.isDirectory) {
-            // TODO return a file directory page
-            throw NotFoundException()
+            return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(StreamingResponseBody { out ->
+                directoryTemplate.process(pathInfo.toFreemarkerDataModel(), out.writer())
+            })
         }
 
         val stream = StreamingResponseBody { out ->

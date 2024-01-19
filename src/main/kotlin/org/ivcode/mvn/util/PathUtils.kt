@@ -19,7 +19,7 @@ public fun Path.isSubdirectoryOf(base: Path): Boolean =
 public fun Path.listChildren(): List<Path> {
     val children = mutableListOf<Path>()
 
-    Files.walkFileTree(this, emptySet(),0, object: SimpleFileVisitor<Path>() {
+    Files.walkFileTree(this, emptySet(),1, object: SimpleFileVisitor<Path>() {
         override fun visitFile(file: Path, attrs: BasicFileAttributes?): FileVisitResult {
             children.add(file)
             return FileVisitResult.CONTINUE
