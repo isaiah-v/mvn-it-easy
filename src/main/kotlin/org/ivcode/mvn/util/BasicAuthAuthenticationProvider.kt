@@ -2,6 +2,7 @@ package org.ivcode.mvn.util
 
 import org.ivcode.mvn.services.BasicAuthService
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -19,7 +20,7 @@ public class BasicAuthAuthenticationProvider (
             val authorities = basicAuth.roles.map { role -> SimpleGrantedAuthority(role.roleName()) }
             UsernamePasswordAuthenticationToken(username, password, authorities)
         } else {
-            null
+            return UsernamePasswordAuthenticationToken(null, null)
         }
     }
 

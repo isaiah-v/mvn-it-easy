@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.spring") version "1.9.22"
@@ -29,6 +31,33 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
+
+fun String.runCommand(workingDirectory: File = layout.projectDirectory.asFile, env: List<Pair<String, Any>> = emptyList()): Int {
+    println("> $this")
+    return project.exec {
+        environment(*env.toTypedArray())
+        workingDir = workingDirectory
+        commandLine = this@runCommand.split("\\s".toRegex())
+    }.exitValue
+}
+
+tasks.register("docker-build") {
+    val scripts = File(layout.projectDirectory.asFile, "scripts${File.separator}docker")
+
+    doLast {
+        val os = DefaultNativePlatform.getCurrentOperatingSystem()
+
+        if(os.isLinux) {
+            "./build.sh".runCommand(scripts, listOf(
+                "PROJECT_NAME" to rootProject.name,
+                "PROJECT_VERSION" to rootProject.version
+            ))
+        } else {
+            throw IllegalStateException("Unsupported Operating System: ${os.name}")
+        }
+    }
+}
+
 
 tasks.test {
     useJUnitPlatform()

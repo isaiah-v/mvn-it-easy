@@ -8,33 +8,37 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
+import org.springframework.security.core.Authentication
 import org.springframework.security.web.SecurityFilterChain
+
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    @Throws(Exception::class)
-    public fun authManager(
+    public fun createAuthenticationManager(
         http: HttpSecurity,
-        basicAuthService: BasicAuthService,
-    ): AuthenticationManager {
-        val authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder::class.java)
-        authenticationManagerBuilder.authenticationProvider(BasicAuthAuthenticationProvider(basicAuthService))
+        basicAuthService: BasicAuthService
+    ): AuthenticationManager = http
+        .getSharedObject(AuthenticationManagerBuilder::class.java)
+        .authenticationProvider(BasicAuthAuthenticationProvider(basicAuthService))
+        .build()
 
-        return authenticationManagerBuilder.build()
-    }
 
     @Bean
     public fun securityFilterChain(
         http: HttpSecurity,
+        authenticationManager: AuthenticationManager,
         @Value("\${mvn.public}") isPublic: Boolean,
     ): SecurityFilterChain {
+
+        http.authenticationManager(authenticationManager)
 
         http {
             authorizeHttpRequests {
@@ -44,11 +48,11 @@ public class SecurityConfig {
                 authorize(HttpMethod.DELETE, "*/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
                 authorize(anyRequest, if(isPublic) permitAll else authenticated)
             }
-            httpBasic {}
-
+            httpBasic { }
             // mvn's upload process looks like a cross-site request forgery. It needs to be disabled.
             csrf { disable() }
         }
+
         return http.build()
     }
 }
