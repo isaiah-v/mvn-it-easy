@@ -1,4 +1,4 @@
-package org.ivcode.mvn.services.models
+package org.ivcode.mvn.services.fileserver.models
 
 import org.springframework.http.MediaType
 import java.nio.file.Path

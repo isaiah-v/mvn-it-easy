@@ -1,10 +1,10 @@
-package org.ivcode.mvn.config
+package org.ivcode.mvn.config.auth.basicauthfile
 
-import org.ivcode.mvn.services.models.BasicAuthRole
-import org.ivcode.mvn.services.models.BasicAuthUserEntry
-import org.ivcode.mvn.util.hash
-import org.ivcode.mvn.util.read
-import org.ivcode.mvn.util.write
+import org.ivcode.mvn.services.auth.models.BasicAuthRole
+import org.ivcode.mvn.services.auth.models.BasicAuthUserEntry
+import org.ivcode.mvn.util.auth.basicauthfile.hash
+import org.ivcode.mvn.util.auth.basicauthfile.read
+import org.ivcode.mvn.util.auth.basicauthfile.write
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -13,15 +13,17 @@ import org.springframework.context.annotation.Configuration
 import java.nio.file.Path
 import kotlin.io.path.exists
 
-private val LOGGER = LoggerFactory.getLogger(BasicAuthConfig::class.java)
-
 @Configuration
-public class BasicAuthConfig {
+@ConditionalOnProperty(value = ["mvn.auth.type"], havingValue = "basic-auth-file", matchIfMissing = false)
+public class BasicAuthFileConfig {
+
+    private companion object {
+        private val LOGGER = LoggerFactory.getLogger(BasicAuthFileConfig::class.java)
+    }
 
     @Bean("basic-auth-user-entries")
-    @ConditionalOnProperty(value = ["mvn.type"], havingValue = "file-system", matchIfMissing = false)
     public fun createUserPassword(
-        @Value("\${mvn.file-system.password-file}") passwordsFile: Path,
+        @Value("\${mvn.auth.basic-auth-file.password-file}") passwordsFile: Path,
         @Value("\${mvn.admin.username:#{null}}") adminUsername: String?,
         @Value("\${mvn.admin.password:#{null}}") adminPassword: String?,
     ): Set<BasicAuthUserEntry> {

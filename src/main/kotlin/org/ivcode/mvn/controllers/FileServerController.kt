@@ -2,8 +2,7 @@ package org.ivcode.mvn.controllers
 
 import freemarker.template.Template
 import jakarta.servlet.ServletContext
-import org.ivcode.mvn.exceptions.NotFoundException
-import org.ivcode.mvn.services.MvnService
+import org.ivcode.mvn.services.fileserver.FileServerService
 import org.ivcode.mvn.util.toFreemarkerDataModel
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
@@ -20,8 +19,8 @@ import kotlin.io.path.Path
 
 @Controller
 @RequestMapping
-public class MvnRepoController (
-    private val repo: MvnService,
+public class FileServerController (
+    private val fileServerService: FileServerService,
     private val servletContext: ServletContext,
     @Qualifier("ftl.template.directory") private val directoryTemplate: Template
 ) {
@@ -29,7 +28,7 @@ public class MvnRepoController (
     @RequestMapping(method = [RequestMethod.GET], path = ["/**"])
     public fun get(request: RequestEntity<Any>): ResponseEntity<StreamingResponseBody> {
 
-        val pathInfo = repo.getPathInfo(getPath(request.url))
+        val pathInfo = fileServerService.getPathInfo(getPath(request.url))
 
         if(pathInfo.isDirectory) {
             return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(StreamingResponseBody { out ->
@@ -38,7 +37,7 @@ public class MvnRepoController (
         }
 
         val stream = StreamingResponseBody { out ->
-            repo.get(pathInfo, out)
+            fileServerService.get(pathInfo, out)
         }
 
         return ResponseEntity.ok().run {
@@ -52,7 +51,7 @@ public class MvnRepoController (
     @RequestMapping(method = [RequestMethod.POST], path = ["/**"])
     public fun post(request: RequestEntity<InputStream>): ResponseEntity<Any> {
         request.body.use {
-            repo.post(getPath(request.url), it!!)
+            fileServerService.post(getPath(request.url), it!!)
         }
 
         return ResponseEntity.ok().build()
@@ -61,7 +60,7 @@ public class MvnRepoController (
     @RequestMapping(method = [RequestMethod.PUT], path = ["/**"])
     public fun put(request: RequestEntity<InputStream>): ResponseEntity<Any> {
         request.body.use {
-            repo.put(getPath(request.url), it!!)
+            fileServerService.put(getPath(request.url), it!!)
         }
 
         return ResponseEntity.ok().build()
@@ -69,7 +68,7 @@ public class MvnRepoController (
 
     @RequestMapping(method = [RequestMethod.DELETE], path = ["/**"])
     public fun delete(request: RequestEntity<Any>): ResponseEntity<Any> {
-        repo.delete(getPath(request.url))
+        fileServerService.delete(getPath(request.url))
         return ResponseEntity.ok().build()
     }
 

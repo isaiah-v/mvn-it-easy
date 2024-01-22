@@ -12,7 +12,6 @@ import org.springframework.http.converter.HttpMessageNotWritableException
 import java.io.IOException
 import java.io.InputStream
 
-
 @Configuration
 public class WebConfig {
 

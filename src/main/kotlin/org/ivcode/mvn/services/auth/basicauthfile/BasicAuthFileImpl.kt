@@ -1,19 +1,19 @@
-package org.ivcode.mvn.impl.filesystem.services
+package org.ivcode.mvn.services.auth.basicauthfile
 
-import org.ivcode.mvn.services.BasicAuthService
-import org.ivcode.mvn.services.models.BasicAuthRole
-import org.ivcode.mvn.services.models.BasicAuthorization
-import org.ivcode.mvn.services.models.BasicAuthUserEntry
-import org.ivcode.mvn.services.models.UsernamePassword
+import org.ivcode.mvn.services.auth.BasicAuthService
+import org.ivcode.mvn.services.auth.models.BasicAuthRole
+import org.ivcode.mvn.services.auth.models.BasicAuthorization
+import org.ivcode.mvn.services.auth.models.BasicAuthUserEntry
+import org.ivcode.mvn.services.auth.models.UsernamePassword
 import org.ivcode.mvn.util.decodeBase64
-import org.ivcode.mvn.util.hash
+import org.ivcode.mvn.util.auth.basicauthfile.hash
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
 @Service
-@ConditionalOnProperty(value = ["mvn.type"], havingValue = "file-system", matchIfMissing = false)
-public class BasicAuthServiceFileSystemImpl(
+@ConditionalOnProperty(value = ["mvn.auth.type"], havingValue = "basic-auth-file", matchIfMissing = false)
+public class BasicAuthFileImpl(
     @Qualifier("basic-auth-user-entries") private val basicAuthUserEntries: Set<BasicAuthUserEntry>
 ): BasicAuthService {
 

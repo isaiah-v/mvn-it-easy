@@ -1,11 +1,11 @@
-package org.ivcode.mvn.services
+package org.ivcode.mvn.services.fileserver
 
-import org.ivcode.mvn.services.models.ResourceInfo
+import org.ivcode.mvn.services.fileserver.models.ResourceInfo
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
 
-public interface MvnService {
+public interface FileServerService {
 
     /**
      * Get resource / directory information

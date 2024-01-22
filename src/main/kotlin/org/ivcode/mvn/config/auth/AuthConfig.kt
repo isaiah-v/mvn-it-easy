@@ -1,25 +1,23 @@
-package org.ivcode.mvn.config
+package org.ivcode.mvn.config.auth
 
-import org.ivcode.mvn.services.BasicAuthService
-import org.ivcode.mvn.services.models.BasicAuthRole
-import org.ivcode.mvn.util.BasicAuthAuthenticationProvider
+import org.ivcode.mvn.services.auth.BasicAuthService
+import org.ivcode.mvn.services.auth.models.BasicAuthRole
+import org.ivcode.mvn.security.BasicAuthAuthenticationProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
-import org.springframework.security.core.Authentication
 import org.springframework.security.web.SecurityFilterChain
 
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class AuthConfig {
 
     @Bean
     public fun createAuthenticationManager(
@@ -35,7 +33,7 @@ public class SecurityConfig {
     public fun securityFilterChain(
         http: HttpSecurity,
         authenticationManager: AuthenticationManager,
-        @Value("\${mvn.public}") isPublic: Boolean,
+        @Value("\${mvn.auth.public}") isPublic: Boolean,
     ): SecurityFilterChain {
 
         http.authenticationManager(authenticationManager)
@@ -49,7 +47,8 @@ public class SecurityConfig {
                 authorize(anyRequest, if(isPublic) permitAll else authenticated)
             }
             httpBasic { }
-            // mvn's upload process looks like a cross-site request forgery. It needs to be disabled.
+
+            // maven's upload process looks like a cross-site request forgery. It needs to be disabled.
             csrf { disable() }
         }
 

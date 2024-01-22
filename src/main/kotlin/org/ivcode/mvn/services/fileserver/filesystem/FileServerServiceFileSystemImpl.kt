@@ -1,11 +1,11 @@
-package org.ivcode.mvn.impl.filesystem.services
+package org.ivcode.mvn.services.fileserver.filesystem
 
 import org.ivcode.mvn.exceptions.ConflictException
 import org.ivcode.mvn.exceptions.ForbiddenException
 import org.ivcode.mvn.exceptions.NotFoundException
-import org.ivcode.mvn.services.MvnService
-import org.ivcode.mvn.services.models.ResourceChildInfo
-import org.ivcode.mvn.services.models.ResourceInfo
+import org.ivcode.mvn.services.fileserver.FileServerService
+import org.ivcode.mvn.services.fileserver.models.ResourceChildInfo
+import org.ivcode.mvn.services.fileserver.models.ResourceInfo
 import org.ivcode.mvn.util.*
 import org.ivcode.mvn.util.deleteRecursively
 import org.springframework.beans.factory.annotation.Value
@@ -21,10 +21,10 @@ import kotlin.io.path.*
  * File-System based maven repository
  */
 @Service
-@ConditionalOnProperty(value = ["mvn.type"], havingValue = "file-system", matchIfMissing = false)
-public class MvnServiceFileSystemImpl (
-    @Value("\${mvn.file-system.repository}") mvnRoot: Path
-) : MvnService {
+@ConditionalOnProperty(value = ["mvn.file-server.type"], havingValue = "file-system", matchIfMissing = false)
+public class FileServerServiceFileSystemImpl (
+    @Value("\${mvn.file-server.file-system.repository}") mvnRoot: Path
+) : FileServerService {
     private final val root: Path = mvnRoot.full()
 
     init {
@@ -138,10 +138,12 @@ public class MvnServiceFileSystemImpl (
         val children = mutableListOf<ResourceChildInfo>()
 
         path.listChildren().forEach { child ->
-            children.add(ResourceChildInfo(
+            children.add(
+                ResourceChildInfo(
                 name = child.name,
                 isDirectory = child.isDirectory()
-            ))
+            )
+            )
         }
 
         return children.toList()

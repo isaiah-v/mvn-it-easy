@@ -1,7 +1,7 @@
-package org.ivcode.mvn.services
+package org.ivcode.mvn.services.auth
 
-import org.ivcode.mvn.services.models.BasicAuthorization
-import org.ivcode.mvn.services.models.UsernamePassword
+import org.ivcode.mvn.services.auth.models.BasicAuthorization
+import org.ivcode.mvn.services.auth.models.UsernamePassword
 
 public interface BasicAuthService {
 

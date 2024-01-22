@@ -1,7 +1,8 @@
-package org.ivcode.mvn.util
+package org.ivcode.mvn.util.auth.basicauthfile
 
-import org.ivcode.mvn.services.models.BasicAuthRole
-import org.ivcode.mvn.services.models.BasicAuthUserEntry
+import org.ivcode.mvn.services.auth.models.BasicAuthRole
+import org.ivcode.mvn.services.auth.models.BasicAuthUserEntry
+import org.ivcode.mvn.util.md5
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.nio.file.Path
@@ -14,7 +15,7 @@ public fun BasicAuthUserEntry.Companion.read(file: Path): Set<BasicAuthUserEntry
             val line = it.trim()
 
             if(line.isNotEmpty()) {
-                val validRoles = BasicAuthRole.entries.map { role -> role }
+                val validRoles = org.ivcode.mvn.services.auth.models.BasicAuthRole.entries.map { role -> role }
 
                 val userEntry = try {
                     BasicAuthUserEntry.createFromString(it)
@@ -42,7 +43,7 @@ public fun BasicAuthUserEntry.Companion.write(file: Path, userEntries: Set<Basic
 
 public fun BasicAuthUserEntry.Companion.createFromString(string: String): BasicAuthUserEntry {
 
-    val pairs = mapOf(*BasicAuthRole.entries.stream().map { role -> role.roleName() to role }.toList().toTypedArray())
+    val pairs = mapOf(*org.ivcode.mvn.services.auth.models.BasicAuthRole.entries.stream().map { role -> role.roleName() to role }.toList().toTypedArray())
 
     val parts = string.split(":")
     if(parts.size!=3) {
