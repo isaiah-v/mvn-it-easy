@@ -4,29 +4,22 @@ import freemarker.template.Template
 import jakarta.servlet.ServletContext
 import org.ivcode.mvn.services.fileserver.FileServerService
 import org.ivcode.mvn.util.toFreemarkerDataModel
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody
 import java.io.InputStream
 import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-@Controller
-@RequestMapping
-public class FileServerController (
+public open abstract class AbstractFileServerController (
+    private val repositoryName: String,
     private val fileServerService: FileServerService,
     private val servletContext: ServletContext,
-    @Qualifier("ftl.template.directory") private val directoryTemplate: Template
+    private val directoryTemplate: Template
 ) {
-
-    @RequestMapping(method = [RequestMethod.GET], path = ["/**"])
-    public fun get(request: RequestEntity<Any>): ResponseEntity<StreamingResponseBody> {
+    public open fun get(request: RequestEntity<Any>): ResponseEntity<StreamingResponseBody> {
 
         val pathInfo = fileServerService.getPathInfo(getPath(request.url))
 
@@ -48,8 +41,7 @@ public class FileServerController (
         }
     }
 
-    @RequestMapping(method = [RequestMethod.POST], path = ["/**"])
-    public fun post(request: RequestEntity<InputStream>): ResponseEntity<Any> {
+    public open fun post(request: RequestEntity<InputStream>): ResponseEntity<Any> {
         request.body.use {
             fileServerService.post(getPath(request.url), it!!)
         }
@@ -57,8 +49,7 @@ public class FileServerController (
         return ResponseEntity.ok().build()
     }
 
-    @RequestMapping(method = [RequestMethod.PUT], path = ["/**"])
-    public fun put(request: RequestEntity<InputStream>): ResponseEntity<Any> {
+    public open fun put(request: RequestEntity<InputStream>): ResponseEntity<Any> {
         request.body.use {
             fileServerService.put(getPath(request.url), it!!)
         }
@@ -66,15 +57,17 @@ public class FileServerController (
         return ResponseEntity.ok().build()
     }
 
-    @RequestMapping(method = [RequestMethod.DELETE], path = ["/**"])
-    public fun delete(request: RequestEntity<Any>): ResponseEntity<Any> {
+    public open fun delete(request: RequestEntity<Any>): ResponseEntity<Any> {
         fileServerService.delete(getPath(request.url))
         return ResponseEntity.ok().build()
     }
 
     private fun getPath(uri: URI): Path {
         // remove the servlet context, if there is one
-        val path = Path(uri.path.removePrefix("/"))
+        val path = Path(uri.path
+            .removePrefix("/")
+            .removePrefix(repositoryName)
+            .removePrefix("/"))
         val context = Path(servletContext.contextPath.removePrefix("/"))
 
         return path.resolve(context)

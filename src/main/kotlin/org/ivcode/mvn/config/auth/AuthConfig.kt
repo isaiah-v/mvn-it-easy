@@ -1,5 +1,6 @@
 package org.ivcode.mvn.config.auth
 
+import jakarta.servlet.http.HttpServletResponse
 import org.ivcode.mvn.services.auth.BasicAuthService
 import org.ivcode.mvn.services.auth.models.BasicAuthRole
 import org.ivcode.mvn.security.BasicAuthAuthenticationProvider
@@ -33,24 +34,37 @@ public class AuthConfig {
     public fun securityFilterChain(
         http: HttpSecurity,
         authenticationManager: AuthenticationManager,
-        @Value("\${mvn.auth.public}") isPublic: Boolean,
+        @Value("\${mvn.auth.public.snapshot}") isSnapshotPublic: Boolean,
+        @Value("\${mvn.auth.public.release}") isReleasePublic: Boolean,
     ): SecurityFilterChain {
 
         http.authenticationManager(authenticationManager)
 
         http {
             authorizeHttpRequests {
-                authorize(HttpMethod.POST, "*/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PUT, "*/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PATCH, "*/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.DELETE, "*/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(anyRequest, if(isPublic) permitAll else authenticated)
+                // Snapshot
+                authorize(HttpMethod.POST, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.PUT, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.PATCH, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.DELETE, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize("/snapshot/**", if(isSnapshotPublic) permitAll else authenticated)
+
+                // Release
+                authorize(HttpMethod.POST, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.PUT, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.PATCH, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.DELETE, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize("/release/**", if(isReleasePublic) permitAll else authenticated)
+
+                // Other
+                authorize("**", permitAll)
             }
             httpBasic { }
 
             // maven's upload process looks like a cross-site request forgery. It needs to be disabled.
             csrf { disable() }
         }
+
 
         return http.build()
     }

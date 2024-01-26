@@ -7,7 +7,9 @@ mvn:
     type: basic-auth-file
 
     # if true, read operations are allowed by anyone
-    public: true
+    public:
+      snapshot: false
+      release: true
 
     # Admin credentials (optional)
     # This is used to create an admin. If an admin exists, it's not needed
@@ -19,12 +21,22 @@ mvn:
     basic-auth-file:
       password-file: ./mvn/mvn.password
 
+
   # File Server parameters
   # hosts and serves files
-  file-server:
+  snapshot:
+    # file-server type. Currently only supports "file-system"
+    type: file-system
+
+    file-system:
+      repository: ./mvn/www/snapshot
+
+  # File Server parameters
+  # hosts and serves files
+  release:
     # file-server type. Currently only supports "file-system"
     type: file-system
 
     # A file-system implementation of the file server
     file-system:
-      repository: ./mvn/www
+      repository: ./mvn/www/release

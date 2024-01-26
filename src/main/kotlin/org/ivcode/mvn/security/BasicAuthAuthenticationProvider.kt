@@ -19,7 +19,7 @@ public class BasicAuthAuthenticationProvider (
             val authorities = basicAuth.roles.map { role -> SimpleGrantedAuthority(role.roleName()) }
             UsernamePasswordAuthenticationToken(username, password, authorities)
         } else {
-            return UsernamePasswordAuthenticationToken(null, null)
+            authentication
         }
     }
 

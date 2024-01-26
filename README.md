@@ -17,8 +17,9 @@ docker run \
  --name mvn-it-simple \
  --publish 8080:8080 \
  --volume ${PWD}/data:/data \
- --env ADMIN_USERNAME=admin \
- --env ADMIN_PASSWORD=password \
- --env MVN_PUBLIC=true \
+ --env MVN_AUTH_ADMIN_USERNAME=admin \
+ --env MVN_AUTH_ADMIN_PASSWORD=password \
+ --env MVN_AUTH_PUBLIC_SNAPSHOT=true \
+ --env MVN_AUTH_PUBLIC_RELEASE=true \
  mvn-it-simple
 ```

@@ -14,18 +14,18 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.URI
 import java.nio.file.*
 import kotlin.io.path.*
 
 /**
  * File-System based maven repository
  */
-@Service
-@ConditionalOnProperty(value = ["mvn.file-server.type"], havingValue = "file-system", matchIfMissing = false)
 public class FileServerServiceFileSystemImpl (
-    @Value("\${mvn.file-server.file-system.repository}") mvnRoot: Path
+    private val repositoryName: String,
+    mvnRoot: Path
 ) : FileServerService {
-    private final val root: Path = mvnRoot.full()
+    private val root: Path = mvnRoot.full()
 
     init {
         if(!root.exists()) {
@@ -42,7 +42,7 @@ public class FileServerServiceFileSystemImpl (
         }
 
         return ResourceInfo(
-            path = root.relativize(resolvedPath),
+            uri = URI.create("/${repositoryName}/${resolvedPath.relativeTo(root)}"),
             name = resolvedPath.name,
             mimeType = getMime(resolvedPath),
             isDirectory = resolvedPath.isDirectory(),
@@ -52,7 +52,7 @@ public class FileServerServiceFileSystemImpl (
     }
 
     override fun get(resourceInfo: ResourceInfo, out: OutputStream) {
-        val path = root.resolve(resourceInfo.path).full()
+        val path = root.resolve(resourceInfo.uri.path).full()
         checkFile(path)
 
         path.inputStream().use {

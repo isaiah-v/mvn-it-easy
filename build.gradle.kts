@@ -66,3 +66,7 @@ kotlin {
     explicitApi()
     jvmToolchain(21)
 }
+
+application {
+    mainClass.set("org.ivcode.mvn.MainKt")
+}
