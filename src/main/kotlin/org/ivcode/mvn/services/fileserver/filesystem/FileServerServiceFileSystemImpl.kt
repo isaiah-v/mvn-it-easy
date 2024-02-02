@@ -6,6 +6,7 @@ import org.ivcode.mvn.exceptions.NotFoundException
 import org.ivcode.mvn.services.fileserver.FileServerService
 import org.ivcode.mvn.services.fileserver.models.ResourceChildInfo
 import org.ivcode.mvn.services.fileserver.models.ResourceInfo
+import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
 import org.ivcode.mvn.util.*
 import org.ivcode.mvn.util.deleteRecursively
 import org.springframework.beans.factory.annotation.Value
@@ -33,7 +34,7 @@ public class FileServerServiceFileSystemImpl (
         }
     }
 
-    override fun getPathInfo(path: Path): ResourceInfo {
+    override fun getPathInfo(repo: RepositoryInfo, path: Path): ResourceInfo {
         val resolvedPath = root.resolve(path).full()
         checkFile(resolvedPath)
 
@@ -51,7 +52,7 @@ public class FileServerServiceFileSystemImpl (
         )
     }
 
-    override fun get(resourceInfo: ResourceInfo, out: OutputStream) {
+    override fun get(repo: RepositoryInfo, resourceInfo: ResourceInfo, out: OutputStream) {
         val path = root.resolve(resourceInfo.uri.path).full()
         checkFile(path)
 
@@ -61,7 +62,7 @@ public class FileServerServiceFileSystemImpl (
         }
     }
 
-    override fun post(path: Path, input: InputStream) {
+    override fun post(repo: RepositoryInfo, path: Path, input: InputStream) {
         val resolvedPath = root.resolve(path).full()
         checkFile(resolvedPath)
 
@@ -77,7 +78,7 @@ public class FileServerServiceFileSystemImpl (
         }
     }
 
-    override fun put(path: Path, input: InputStream) {
+    override fun put(repo: RepositoryInfo, path: Path, input: InputStream) {
         val resolvedPath = root.resolve(path).full()
         checkFile(resolvedPath)
 
@@ -88,7 +89,7 @@ public class FileServerServiceFileSystemImpl (
         }
     }
 
-    override fun delete(path: Path) {
+    override fun delete(repo: RepositoryInfo, path: Path) {
         val resolvedPath = root.resolve(path).full()
         checkFile(resolvedPath)
 

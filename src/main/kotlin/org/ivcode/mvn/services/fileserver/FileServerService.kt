@@ -1,6 +1,7 @@
 package org.ivcode.mvn.services.fileserver
 
 import org.ivcode.mvn.services.fileserver.models.ResourceInfo
+import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
@@ -15,7 +16,7 @@ public interface FileServerService {
      * @throws org.ivcode.mvn.exceptions.NotFoundException if the resource or directory doesn't exist
      * @throws org.ivcode.mvn.exceptions.ForbiddenException if the path isn't allowed
      */
-    public fun getPathInfo(path: Path): ResourceInfo
+    public fun getPathInfo(repo: RepositoryInfo, path: Path): ResourceInfo
 
     /**
      * Write the contents of the resource to the given output stream
@@ -26,7 +27,7 @@ public interface FileServerService {
      * @throws org.ivcode.mvn.exceptions.NotFoundException if the resource doesn't exist or if it's a directory
      * @throws org.ivcode.mvn.exceptions.ForbiddenException if the path isn't allowed
      */
-    public fun get(resourceInfo: ResourceInfo, out: OutputStream)
+    public fun get(repo: RepositoryInfo, resourceInfo: ResourceInfo, out: OutputStream)
 
     /**
      * Writes the given resource to the input stream
@@ -37,7 +38,7 @@ public interface FileServerService {
      * @throws org.ivcode.mvn.exceptions.ConflictException if the resource already exists
      * @throws org.ivcode.mvn.exceptions.ForbiddenException if the path isn't allowed
      */
-    public fun post(path: Path, input: InputStream)
+    public fun post(repo: RepositoryInfo, path: Path, input: InputStream)
 
     /**
      * Writes the given resource to the input stream, overwriting the current resource if
@@ -48,7 +49,7 @@ public interface FileServerService {
      *
      * @throws org.ivcode.mvn.exceptions.ForbiddenException if the path isn't allowed
      */
-    public fun put(path: Path, input: InputStream)
+    public fun put(repoInfo: RepositoryInfo, path: Path, input: InputStream)
 
     /**
      * Deletes a given resource
@@ -56,5 +57,5 @@ public interface FileServerService {
      * @param path path to resource
      * @throws org.ivcode.mvn.exceptions.ForbiddenException if the path isn't allowed
      */
-    public fun delete(path: Path)
+    public fun delete(repoInfo: RepositoryInfo, path: Path)
 }
