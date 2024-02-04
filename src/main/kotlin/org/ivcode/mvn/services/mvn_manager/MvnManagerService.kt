@@ -1,15 +1,24 @@
-package org.ivcode.mvn.services.repositoryapi
+package org.ivcode.mvn.services.mvn_manager
 
 import org.ivcode.mvn.exceptions.BadRequestException
 import org.ivcode.mvn.exceptions.ConflictException
 import org.ivcode.mvn.exceptions.NotFoundException
-import org.ivcode.mvn.services.repositoryapi.models.FileSystemRepositoryInfo
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryType
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
+import org.springframework.stereotype.Service
 
-public class RepositoryServiceSwitch (
-    private val typeServiceMap: Map<RepositoryType, RepositoryService>
+@Service
+public class MvnManagerService (
+    managerTypeList: List<MvnManagerTypeService>,
 ) {
+    private val typeServiceMap: Map<RepositoryType, MvnManagerTypeService> = managerTypeList.associateBy { it.type }
+
+    init {
+        if(typeServiceMap.isEmpty()) {
+            throw IllegalArgumentException("type manager map cannot be empty")
+        }
+    }
+
     private val repositories = mutableMapOf<String, RepositoryInfo>()
 
     public fun getRepository(id: String): RepositoryInfo =
@@ -39,7 +48,7 @@ public class RepositoryServiceSwitch (
     }
     public fun updateRepository(
         id: String,
-        info: FileSystemRepositoryInfo
+        info: RepositoryInfo
     ) {
         // Pull the existing repo or 404
         val oldInfo = repositories[id] ?: throw NotFoundException()

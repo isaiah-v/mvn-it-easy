@@ -6,13 +6,13 @@ import org.ivcode.mvn.exceptions.NotFoundException
 import org.ivcode.mvn.services.fileserver.FileServerService
 import org.ivcode.mvn.services.fileserver.models.ResourceChildInfo
 import org.ivcode.mvn.services.fileserver.models.ResourceInfo
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
 import org.ivcode.mvn.util.*
 import org.ivcode.mvn.util.deleteRecursively
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
@@ -22,10 +22,13 @@ import kotlin.io.path.*
 /**
  * File-System based maven repository
  */
+@Component
 public class FileServerServiceFileSystemImpl (
-    private val repositoryName: String,
-    mvnRoot: Path
+    @Value("\${mvn.repositories.file-system.path}") mvnRoot: Path
 ) : FileServerService {
+
+    public override val type: RepositoryType = RepositoryType.FILE_SYSTEM
+
     private val root: Path = mvnRoot.full()
 
     init {
@@ -35,36 +38,40 @@ public class FileServerServiceFileSystemImpl (
     }
 
     override fun getPathInfo(repo: RepositoryInfo, path: Path): ResourceInfo {
-        val resolvedPath = root.resolve(path).full()
-        checkFile(resolvedPath)
+        val repoRoot = root.resolve(repo.id)
+        val resolvedPath = repoRoot.resolve(path).full()
+        checkFile(repo, resolvedPath)
 
         if(!resolvedPath.exists()) {
             throw NotFoundException()
         }
 
         return ResourceInfo(
-            uri = URI.create("/${repositoryName}/${resolvedPath.relativeTo(root)}"),
+            uri = createUri(resolvedPath),
+            path = path,
             name = resolvedPath.name,
             mimeType = getMime(resolvedPath),
             isDirectory = resolvedPath.isDirectory(),
-            isRoot = resolvedPath.isSameFileAs(root),
+            isRoot = resolvedPath.isSameFileAs(repoRoot),
             children = getChildInfo(resolvedPath)
         )
     }
 
     override fun get(repo: RepositoryInfo, resourceInfo: ResourceInfo, out: OutputStream) {
-        val path = root.resolve(resourceInfo.uri.path).full()
-        checkFile(path)
+        val repoRoot = root.resolve(repo.id)
+        val resolvedPath = repoRoot.resolve(resourceInfo.path).full()
+        checkFile(repo, resolvedPath)
 
-        path.inputStream().use {
+        resolvedPath.inputStream().use {
             it.transferTo(out)
             out.flush()
         }
     }
 
     override fun post(repo: RepositoryInfo, path: Path, input: InputStream) {
-        val resolvedPath = root.resolve(path).full()
-        checkFile(resolvedPath)
+        val repoRoot = root.resolve(repo.id)
+        val resolvedPath = repoRoot.resolve(path).full()
+        checkFile(repo, resolvedPath)
 
         if(resolvedPath.exists()) {
             throw ConflictException()
@@ -79,8 +86,9 @@ public class FileServerServiceFileSystemImpl (
     }
 
     override fun put(repo: RepositoryInfo, path: Path, input: InputStream) {
-        val resolvedPath = root.resolve(path).full()
-        checkFile(resolvedPath)
+        val repoRoot = root.resolve(repo.id)
+        val resolvedPath = repoRoot.resolve(path).full()
+        checkFile(repo, resolvedPath)
 
         resolvedPath.createParentDirectories()
         resolvedPath.outputStream().use { out ->
@@ -90,14 +98,15 @@ public class FileServerServiceFileSystemImpl (
     }
 
     override fun delete(repo: RepositoryInfo, path: Path) {
-        val resolvedPath = root.resolve(path).full()
-        checkFile(resolvedPath)
+        val repoRoot = root.resolve(repo.id)
+        val resolvedPath = repoRoot.resolve(path).full()
+        checkFile(repo, resolvedPath)
 
         if(!resolvedPath.exists()) {
             throw NotFoundException()
         }
 
-        if(resolvedPath.isSameFileAs(root)) {
+        if(resolvedPath.isSameFileAs(repoRoot)) {
             throw ForbiddenException()
         }
 
@@ -105,7 +114,7 @@ public class FileServerServiceFileSystemImpl (
         if(resolvedPath.isRegularFile()) {
             // delete file
 
-            if(!resolvedPath.parent.isSameFileAs(root)) {
+            if(!resolvedPath.parent.isSameFileAs(repoRoot)) {
                 // if the parent directory is empty and not the root directory
                 // delete the directory, otherwise delete the file
 
@@ -131,19 +140,26 @@ public class FileServerServiceFileSystemImpl (
         }
     }
 
-    private fun getChildInfo(path: Path): List<ResourceChildInfo>? {
-        if(!path.isDirectory()) {
+    /**
+     * @param repo repository info
+     * @param path the path with the repo
+     * @param resolvePath the file-system's absolute path
+     */
+    private fun getChildInfo(resolvePath: Path): List<ResourceChildInfo>? {
+        if(!resolvePath.isDirectory()) {
             return null
         }
 
         val children = mutableListOf<ResourceChildInfo>()
 
-        path.listChildren().forEach { child ->
+        resolvePath.listChildren().forEach { child ->
             children.add(
                 ResourceChildInfo(
-                name = child.name,
-                isDirectory = child.isDirectory()
-            )
+                    uri = createUri(resolvePath, child.name),
+                    path = resolvePath.resolve(child.name),
+                    name = child.name,
+                    isDirectory = child.isDirectory()
+                )
             )
         }
 
@@ -151,22 +167,44 @@ public class FileServerServiceFileSystemImpl (
     }
 
     /**
+     * @param resolvePath the absolut file-path
+     */
+    private fun createUri(resolvePath: Path, childName: String?=null): URI {
+        val p = if (childName==null) {
+            resolvePath.relativeTo(root)
+        } else {
+            resolvePath.resolve(childName).relativeTo(root)
+        }
+
+        return URI.create("/mvn/${p}")
+    }
+
+    /**
      * Returns the Mime for the given file. If the file is a directory, `null` is returned
      */
     private fun getMime(file: Path): MediaType? {
-        return if(file.isDirectory()) {
-            null
-        } else {
-            MediaType.APPLICATION_OCTET_STREAM
+        if(file.isDirectory()) {
+            return null
         }
+
+        return when(file.extension.lowercase()) {
+            "xml", "pom" ->
+                MediaType.TEXT_XML
+            "md5", "sha1", "sha256", "sha512" ->
+                MediaType.TEXT_PLAIN
+            else ->
+                MediaType.APPLICATION_OCTET_STREAM
+        }
+
     }
 
     /**
      * Runs verification against the file to make sure the user isn't trying
      * access anything outside the mvn folder
      */
-    private fun checkFile(path: Path) {
-        if(!path.isSubdirectoryOf(root)) {
+    private fun checkFile(repoInfo: RepositoryInfo, path: Path) {
+        val repoDir = root.resolve(repoInfo.id)
+        if(!path.isSubdirectoryOf(repoDir)) {
             // users cannot access information outside the maven directory
             throw ForbiddenException()
         }

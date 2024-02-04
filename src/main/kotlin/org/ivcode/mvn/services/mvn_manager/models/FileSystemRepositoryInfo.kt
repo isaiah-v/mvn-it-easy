@@ -1,4 +1,4 @@
-package org.ivcode.mvn.services.repositoryapi.models
+package org.ivcode.mvn.services.mvn_manager.models
 
 public data class FileSystemRepositoryInfo(
     override val id: String,

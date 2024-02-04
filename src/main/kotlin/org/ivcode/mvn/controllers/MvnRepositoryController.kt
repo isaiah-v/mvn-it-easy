@@ -4,14 +4,12 @@ import freemarker.template.Template
 import jakarta.servlet.ServletContext
 import org.ivcode.mvn.exceptions.InternalServerErrorException
 import org.ivcode.mvn.services.fileserver.FileServerService
-import org.ivcode.mvn.services.repositoryapi.RepositoryServiceSwitch
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryType
+import org.ivcode.mvn.services.mvn_manager.MvnManagerService
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
+import org.ivcode.mvn.util.isAnonymous
 import org.ivcode.mvn.util.toFreemarkerDataModel
-import org.ivcode.mvn.util.verifyAuthenticated
-import org.springframework.http.MediaType
-import org.springframework.http.RequestEntity
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,19 +23,35 @@ import kotlin.io.path.Path
 @Controller
 @RequestMapping(path = ["/mvn"])
 public class MvnRepositoryController (
-    private val repoSwitch: RepositoryServiceSwitch,
-    private val fsMap: Map<RepositoryType, FileServerService>,
+    fssList: List<FileServerService>,
+    private val repoSwitch: MvnManagerService,
     private val servletContext: ServletContext,
     private val directoryTemplate: Template
 ) {
+    private val fssMap: Map<RepositoryType, FileServerService> = fssList.associateBy { it.type }
+
+    init {
+        if(fssMap.isEmpty()) {
+            throw IllegalArgumentException("file service map cannot be empty")
+        }
+    }
+
     @RequestMapping(method = [RequestMethod.GET], path = ["/{repoId}/**"])
     public fun get(
         @PathVariable repoId: String,
         request: RequestEntity<Any>
     ): ResponseEntity<StreamingResponseBody> {
-        val info = repoSwitch.getRepository(repoId).verifyReadAccess()
-        val fs = fsMap[info.type] ?: throw InternalServerErrorException()
+        val info = repoSwitch.getRepository(repoId);
 
+        // if a repository is private, anonymous users can't read from it
+        if(!info.public && isAnonymous()) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .header("WWW-Authenticate", "Basic realm=\"Realm\"")
+                .build()
+        }
+
+        val fs = fssMap[info.type] ?: throw InternalServerErrorException()
 
         val pathInfo = fs.getPathInfo(info, getPath(info, request.url))
 
@@ -65,7 +79,7 @@ public class MvnRepositoryController (
         request: RequestEntity<InputStream>
     ): ResponseEntity<Any> {
         val info = repoSwitch.getRepository(repoId)
-        val fs = fsMap[info.type] ?: throw InternalServerErrorException()
+        val fs = fssMap[info.type] ?: throw InternalServerErrorException()
 
         request.body.use {
             fs.post(info, getPath(info, request.url), it!!)
@@ -80,7 +94,7 @@ public class MvnRepositoryController (
         request: RequestEntity<InputStream>
     ): ResponseEntity<Any> {
         val info = repoSwitch.getRepository(repoId)
-        val fs = fsMap[info.type] ?: throw InternalServerErrorException()
+        val fs = fssMap[info.type] ?: throw InternalServerErrorException()
 
         request.body.use {
             fs.put(info, getPath(info, request.url), it!!)
@@ -95,7 +109,7 @@ public class MvnRepositoryController (
         request: RequestEntity<Any>
     ): ResponseEntity<Any> {
         val info = repoSwitch.getRepository(repoId)
-        val fs = fsMap[info.type] ?: throw InternalServerErrorException()
+        val fs = fssMap[info.type] ?: throw InternalServerErrorException()
 
         fs.delete(info, getPath(info, request.url))
         return ResponseEntity.ok().build()
@@ -105,19 +119,10 @@ public class MvnRepositoryController (
         // remove the servlet context, if there is one
         val path = Path(uri.path
             .removePrefix("/")
-            .removePrefix(info.id)
+            .removePrefix("mvn/${info.id}")
             .removePrefix("/"))
         val context = Path(servletContext.contextPath.removePrefix("/"))
 
         return path.resolve(context)
-    }
-
-    /**
-     * Verifies the given repo is public or the current user is authorized
-     */
-    private fun RepositoryInfo.verifyReadAccess() = apply {
-        if(!this.public) {
-            verifyAuthenticated()
-        }
     }
 }

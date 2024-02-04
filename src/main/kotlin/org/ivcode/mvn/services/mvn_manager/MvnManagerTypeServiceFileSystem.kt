@@ -1,20 +1,26 @@
-package org.ivcode.mvn.services.repositoryapi
+package org.ivcode.mvn.services.mvn_manager
 
 import org.ivcode.mvn.exceptions.BadRequestException
 import org.ivcode.mvn.exceptions.InternalServerErrorException
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryType
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
 import org.ivcode.mvn.util.deleteRecursively
 import org.ivcode.mvn.util.full
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
-public class RepositoryServiceFileSystem(
-    private val mvnRoot: Path
-): RepositoryService {
+@Service
+public class MvnManagerTypeServiceFileSystem(
+    @Value("\${mvn.repositories.file-system.path}") private val mvnRoot: Path,
+): MvnManagerTypeService {
+    override val type: RepositoryType = RepositoryType.FILE_SYSTEM
+
     override fun deleteRepository(info: RepositoryInfo) {
         val path = info.getAbsolutePath()
         if(!path.isDirectory()) {
@@ -26,7 +32,8 @@ public class RepositoryServiceFileSystem(
 
     override fun createRepository(info: RepositoryInfo) {
         val path = info.getAbsolutePath()
-        if(path.exists()) {
+
+        if(path.exists() && !path.isDirectory()) {
             // The given path cannot already exist
             throw BadRequestException()
         }

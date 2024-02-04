@@ -6,6 +6,7 @@ import java.nio.file.Path
 
 public data class ResourceInfo (
     val uri: URI,
+    val path: Path,
     val name: String,
     val mimeType: MediaType? = null,
     val isDirectory: Boolean,
@@ -14,6 +15,8 @@ public data class ResourceInfo (
 )
 
 public data class ResourceChildInfo (
+    val uri: URI,
+    val path: Path,
     val name: String,
     val isDirectory: Boolean
 )

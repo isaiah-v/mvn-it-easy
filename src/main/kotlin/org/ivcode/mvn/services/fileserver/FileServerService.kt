@@ -1,12 +1,15 @@
 package org.ivcode.mvn.services.fileserver
 
 import org.ivcode.mvn.services.fileserver.models.ResourceInfo
-import org.ivcode.mvn.services.repositoryapi.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
+import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
 
 public interface FileServerService {
+
+    public val type: RepositoryType;
 
     /**
      * Get resource / directory information

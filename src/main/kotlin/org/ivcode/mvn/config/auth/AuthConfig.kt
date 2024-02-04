@@ -42,19 +42,13 @@ public class AuthConfig {
 
         http {
             authorizeHttpRequests {
-                // Snapshot
-                authorize(HttpMethod.POST, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PUT, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PATCH, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.DELETE, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize("/snapshot/**", if(isSnapshotPublic) permitAll else authenticated)
-
-                // Release
-                authorize(HttpMethod.POST, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PUT, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PATCH, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.DELETE, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize("/release/**", if(isReleasePublic) permitAll else authenticated)
+                // Maven Repositories
+                // Note: GET access is determined by the controller.
+                authorize(HttpMethod.POST, "/mvn/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.PUT, "/mvn/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.PATCH, "/mvn/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize(HttpMethod.DELETE, "/mvn/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
+                authorize("/mvn/**", permitAll)
 
                 // Other
                 authorize("**", permitAll)

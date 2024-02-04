@@ -1,4 +1,5 @@
 mvn:
+  root: ./mvn
 
   # Authorization parameters
   # security and user access
@@ -19,24 +20,8 @@ mvn:
 
     # A basic auth implementation where users, roles, and password hashes are maintained in a file
     basic-auth-file:
-      password-file: ./mvn/mvn.password
+      password-file: ${mvn.root}/mvn.password
 
-
-  # File Server parameters
-  # hosts and serves files
-  snapshot:
-    # file-server type. Currently only supports "file-system"
-    type: file-system
-
+  repositories:
     file-system:
-      repository: ./mvn/www/snapshot
-
-  # File Server parameters
-  # hosts and serves files
-  release:
-    # file-server type. Currently only supports "file-system"
-    type: file-system
-
-    # A file-system implementation of the file server
-    file-system:
-      repository: ./mvn/www/release
+      path: ${mvn.root}/www
