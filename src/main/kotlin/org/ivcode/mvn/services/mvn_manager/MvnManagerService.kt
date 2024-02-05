@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 public class MvnManagerService (
     managerTypeList: List<MvnManagerTypeService>,
+    public val repositoryInfoManager: RepositoryInfoManager,
 ) {
     private val typeServiceMap: Map<RepositoryType, MvnManagerTypeService> = managerTypeList.associateBy { it.type }
 
@@ -19,39 +20,37 @@ public class MvnManagerService (
         }
     }
 
-    private val repositories = mutableMapOf<String, RepositoryInfo>()
-
     public fun getRepository(id: String): RepositoryInfo =
-        repositories[id] ?: throw NotFoundException()
+        repositoryInfoManager.get(id) ?: throw NotFoundException()
     public fun getRepositories(): List<RepositoryInfo> =
-        repositories.values.sortedBy { it.id }
+        repositoryInfoManager.values().sortedBy { it.id }
     public fun deleteRepository(id: String) {
         // Get repo, or 404
-        val info = repositories[id] ?: throw NotFoundException()
+        val info = repositoryInfoManager.get(id) ?: throw NotFoundException()
 
         // Run the delete logic
         typeServiceMap[info.type]!!.deleteRepository(info)
 
         // If all is well, drop the repo
-        repositories.remove(id)
+        repositoryInfoManager.remove(id)
     }
-    public fun createRepository(
+    public fun createRepository (
         info: RepositoryInfo
     ) {
-        if(repositories.containsKey(info.id)) {
+        if(repositoryInfoManager.containsId(info.id)) {
             // if the id already exists, no good
             throw ConflictException()
         }
 
         typeServiceMap[info.type]!!.createRepository(info)
-        repositories[info.id] = info
+        repositoryInfoManager.set(info.id, info)
     }
     public fun updateRepository(
         id: String,
         info: RepositoryInfo
     ) {
         // Pull the existing repo or 404
-        val oldInfo = repositories[id] ?: throw NotFoundException()
+        val oldInfo = repositoryInfoManager.get(id) ?: throw NotFoundException()
 
         if(oldInfo.type!=info.type) {
             // the repo type cannot be updated

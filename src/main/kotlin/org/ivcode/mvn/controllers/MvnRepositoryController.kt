@@ -7,7 +7,7 @@ import org.ivcode.mvn.services.fileserver.FileServerService
 import org.ivcode.mvn.services.mvn_manager.MvnManagerService
 import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
 import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
-import org.ivcode.mvn.util.isAnonymous
+import org.ivcode.mvn.util.hasRepositoryReadAccess
 import org.ivcode.mvn.util.toFreemarkerDataModel
 import org.springframework.http.*
 import org.springframework.stereotype.Controller
@@ -44,7 +44,7 @@ public class MvnRepositoryController (
         val info = repoSwitch.getRepository(repoId);
 
         // if a repository is private, anonymous users can't read from it
-        if(!info.public && isAnonymous()) {
+        if(!info.public && hasRepositoryReadAccess()) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .header("WWW-Authenticate", "Basic realm=\"Realm\"")

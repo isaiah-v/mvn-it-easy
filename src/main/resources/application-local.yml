@@ -7,20 +7,11 @@ mvn:
     #auth type: Currently only supports "basic-auth-file"
     type: basic-auth-file
 
-    # if true, read operations are allowed by anyone
-    public:
-      snapshot: false
-      release: true
-
     # Admin credentials (optional)
     # This is used to create an admin. If an admin exists, it's not needed
     admin:
       username: admin
       password: password
-
-    # A basic auth implementation where users, roles, and password hashes are maintained in a file
-    basic-auth-file:
-      password-file: ${mvn.root}/mvn.password
 
   repositories:
     file-system:
