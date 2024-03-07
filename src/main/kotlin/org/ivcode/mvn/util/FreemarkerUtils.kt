@@ -1,8 +1,8 @@
 package org.ivcode.mvn.util
 
-import org.ivcode.mvn.services.fileserver.models.ResourceInfo
+import org.ivcode.mvn.services.dbfilesystem.models.DirectoryInfo
 
-public fun ResourceInfo.toFreemarkerDataModel(): Map<String, Any?> = mapOf(
+public fun DirectoryInfo.toFreemarkerDataModel(): Map<String, Any?> = mapOf(
     "uri" to this.uri,
     "path" to this.path,
     "isRoot" to this.isRoot,

@@ -9,20 +9,8 @@ public enum class BasicAuthRole(
     USER (
         repositoryRead = true,
         repositoryWrite = false,
-        repositoryManagerRead = true,
-        repositoryManagerWrite = false
-    ),
-    BUILDER (
-        repositoryRead = true,
-        repositoryWrite = true,
         repositoryManagerRead = false,
         repositoryManagerWrite = false
-    ),
-    REPOSITORY_MANAGER (
-        repositoryRead = false,
-        repositoryWrite = false,
-        repositoryManagerRead = true,
-        repositoryManagerWrite = true
     ),
     ADMIN (
         repositoryRead = true,

@@ -1,10 +1,7 @@
 package org.ivcode.mvn.controllers
 
-import org.ivcode.mvn.exceptions.BadRequestException
-import org.ivcode.mvn.services.mvn_manager.MvnManagerService
-import org.ivcode.mvn.services.mvn_manager.models.FileSystemRepositoryInfo
-import org.ivcode.mvn.services.mvn_manager.models.RepositoryInfo
-import org.ivcode.mvn.services.mvn_manager.models.RepositoryType
+import org.ivcode.mvn.services.mvnrepo.MvnRepository
+import org.ivcode.mvn.services.mvnrepo.MvnRepositoryService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,28 +12,22 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(path = ["/api/mvn"])
 public class MvnRepositoryManagerController(
-    private val manager: MvnManagerService
+    private val mvnRepositoryService: MvnRepositoryService
 ) {
 
     @PostMapping
-    public fun createFileSystemRepo(repoInfo: FileSystemRepositoryInfo) {
-        repoInfo.assertType(RepositoryType.FILE_SYSTEM)
-        return manager.createRepository(repoInfo)
+    public fun createRepo(repo: MvnRepository) {
+        mvnRepositoryService.createRepository(repo)
     }
 
     @GetMapping
-    public fun getRepos(): List<RepositoryInfo> = manager.getRepositories()
+    public fun getRepos(): List<MvnRepository> = mvnRepositoryService.readRepositories()
 
-    @DeleteMapping(path = ["/{id}"])
+    @DeleteMapping(path = ["/{name}"])
     public fun deleteRepo(
-        @PathVariable id: String
+        @PathVariable name: String
     ) {
-        manager.deleteRepository(id)
+        mvnRepositoryService.deleteRepository(name)
     }
 
-    private fun RepositoryInfo.assertType(type: RepositoryType) {
-        if(this.type!=type) {
-            throw BadRequestException()
-        }
-    }
 }
