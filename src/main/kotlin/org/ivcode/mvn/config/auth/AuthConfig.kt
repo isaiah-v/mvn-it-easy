@@ -1,10 +1,10 @@
 package org.ivcode.mvn.config.auth
 
-import jakarta.servlet.http.HttpServletResponse
 import org.ivcode.mvn.services.auth.BasicAuthService
-import org.ivcode.mvn.services.auth.models.BasicAuthRole
 import org.ivcode.mvn.security.BasicAuthAuthenticationProvider
-import org.springframework.beans.factory.annotation.Value
+import org.ivcode.mvn.services.auth.models.REPOSITORY_MANAGER_READ_AUTHORITIES
+import org.ivcode.mvn.services.auth.models.REPOSITORY_MANAGER_WRITE_AUTHORITIES
+import org.ivcode.mvn.services.auth.models.REPOSITORY_WRITE_AUTHORITIES
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -34,27 +34,29 @@ public class AuthConfig {
     public fun securityFilterChain(
         http: HttpSecurity,
         authenticationManager: AuthenticationManager,
-        @Value("\${mvn.auth.public.snapshot}") isSnapshotPublic: Boolean,
-        @Value("\${mvn.auth.public.release}") isReleasePublic: Boolean,
     ): SecurityFilterChain {
-
         http.authenticationManager(authenticationManager)
 
         http {
             authorizeHttpRequests {
-                // Snapshot
-                authorize(HttpMethod.POST, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PUT, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PATCH, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.DELETE, "/snapshot/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize("/snapshot/**", if(isSnapshotPublic) permitAll else authenticated)
+                // Maven Repositories
+                // Note: The responsibility of determining of someone has read to given repo is determined by the controller
+                val repoWriteAuthorities = REPOSITORY_WRITE_AUTHORITIES.toTypedArray()
+                authorize(HttpMethod.POST, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
+                authorize(HttpMethod.PUT, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
+                authorize(HttpMethod.PATCH, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
+                authorize(HttpMethod.DELETE, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
+                authorize("/mvn/**", permitAll)
 
-                // Release
-                authorize(HttpMethod.POST, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PUT, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.PATCH, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize(HttpMethod.DELETE, "/release/**", hasAuthority(BasicAuthRole.ADMIN.roleName()))
-                authorize("/release/**", if(isReleasePublic) permitAll else authenticated)
+                // Maven Repository Manager
+                val repoManWrite = REPOSITORY_MANAGER_WRITE_AUTHORITIES.toTypedArray()
+                val repoManRead = REPOSITORY_MANAGER_READ_AUTHORITIES.toTypedArray()
+                authorize(HttpMethod.POST, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
+                authorize(HttpMethod.PUT, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
+                authorize(HttpMethod.PATCH, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
+                authorize(HttpMethod.DELETE, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
+                authorize(HttpMethod.GET, "/api/mvn/**", hasAnyAuthority(*repoManRead))
+                authorize("/api/mvn/**", permitAll)
 
                 // Other
                 authorize("**", permitAll)
@@ -64,7 +66,6 @@ public class AuthConfig {
             // maven's upload process looks like a cross-site request forgery. It needs to be disabled.
             csrf { disable() }
         }
-
 
         return http.build()
     }

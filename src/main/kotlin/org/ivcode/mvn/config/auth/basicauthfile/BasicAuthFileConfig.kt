@@ -23,10 +23,11 @@ public class BasicAuthFileConfig {
 
     @Bean("basic-auth-user-entries")
     public fun createUserPassword(
-        @Value("\${mvn.auth.basic-auth-file.password-file}") passwordsFile: Path,
+        @Value("\${mvn.root}") mvnRoot: Path,
         @Value("\${mvn.auth.admin.username:#{null}}") adminUsername: String?,
         @Value("\${mvn.auth.admin.password:#{null}}") adminPassword: String?,
     ): Set<BasicAuthUserEntry> {
+        val passwordsFile = mvnRoot.resolve("mvn.password")
 
         var entries = if(passwordsFile.exists()) BasicAuthUserEntry.read(passwordsFile) else emptySet()
         if(adminUsername!=null && adminPassword!=null) {

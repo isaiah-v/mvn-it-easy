@@ -1,4 +1,23 @@
+server:
+  forward-headers-strategy: FRAMEWORK
+
+
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:/database/db.changelog-root.yml
+
+  servlet.multipart:
+    max-file-size: 100MB
+    max-request-size: 100MB
+
+  datasource:
+    url: jdbc:h2:file:./h2/home-portal
+    username: mv
+    password: password
+
 mvn:
+  root: ./mvn
 
   # Authorization parameters
   # security and user access
@@ -6,37 +25,15 @@ mvn:
     #auth type: Currently only supports "basic-auth-file"
     type: basic-auth-file
 
-    # if true, read operations are allowed by anyone
-    public:
-      snapshot: false
-      release: true
-
     # Admin credentials (optional)
     # This is used to create an admin. If an admin exists, it's not needed
     admin:
       username: admin
       password: password
 
-    # A basic auth implementation where users, roles, and password hashes are maintained in a file
-    basic-auth-file:
-      password-file: ./mvn/mvn.password
-
-
-  # File Server parameters
-  # hosts and serves files
-  snapshot:
-    # file-server type. Currently only supports "file-system"
-    type: file-system
-
+  repositories:
     file-system:
-      repository: ./mvn/www/snapshot
+      path: ${mvn.root}/www
 
-  # File Server parameters
-  # hosts and serves files
-  release:
-    # file-server type. Currently only supports "file-system"
-    type: file-system
-
-    # A file-system implementation of the file server
-    file-system:
-      repository: ./mvn/www/release
+logging.level:
+  org.ivcode: TRACE

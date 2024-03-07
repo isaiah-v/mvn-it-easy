@@ -1,11 +1,5 @@
 <#ftl output_format="HTML">
 
-<#macro trimSlashes str>${str?remove_beginning("/")?remove_ending("/")}</#macro>
-
-<#macro filepath path file><@compress>
-    /<@trimSlashes str=path/>/<@trimSlashes str=file/>
-</@compress></#macro>
-
 <html>
     <head>
         <style>
@@ -40,7 +34,7 @@
         </style>
     </head>
     <body>
-        <div>${uri}</div>
+        <div>${path}</div>
 
         <#assign row = 0>
         <div class="table">
@@ -58,7 +52,7 @@
                 <#assign row++>
                 <div class="tr <#if row%2==0>odd</#if>">
                     <div class="td icon"><span>&#128194;</span></div>
-                    <div class="td"><a href="<@filepath path=uri file=directory />">${directory}</a></div>
+                    <div class="td"><a href="${directory.uri}">${directory.name}</a></div>
                 </div>
             </#list>
 
@@ -67,7 +61,7 @@
                 <#assign row++>
                 <div class="tr <#if row%2==0>odd</#if>">
                     <div class="td icon"><span>&#128196;</span></div>
-                    <div class="td"><a href="<@filepath path=uri file=file />">${file}</a></div>
+                    <div class="td"><a href="${file.uri}">${file.name}</a></div>
                 </div>
             </#list>
         </div>

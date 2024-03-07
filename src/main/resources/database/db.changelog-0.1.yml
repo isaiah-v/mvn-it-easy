@@ -1,0 +1,89 @@
+databaseChangeLog:
+
+  # Repository Table
+  - changeSet:
+      id: 0.1.1
+      author: isaiah.v
+      changes:
+        - createTable:
+            tableName: repository
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    - primaryKey: true
+                    - nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    - nullable: false
+                    - unique: true
+              - column:
+                  name: public
+                  type: boolean
+                  constraints:
+                    - nullable: false
+
+  # File-Hierarchy Table
+  - changeSet:
+      id: 0.1.2
+      author: isaiah.v
+      changes:
+        - createTable:
+            tableName: file_system
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    - primaryKey: true
+                    - nullable: false
+              - column:
+                  name: repository_id
+                  type: bigint
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: parent_id
+                  type: bigint
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: directory
+                  type: boolean
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: last_modified
+                  type: date
+              - column:
+                  name: mime
+                  type: varchar(255)
+              - column:
+                  name: data
+                  type: longblob
+        - addForeignKeyConstraint:
+            constraintName: fk_fs_repository
+            baseColumnNames: repository_id
+            baseTableName: file_system
+            referencedColumnNames: id
+            referencedTableName: repository
+            validate: true
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            constraintName: fk_fs_fs
+            baseColumnNames: parent_id
+            baseTableName: file_system
+            referencedColumnNames: id
+            referencedTableName: file_system
+            validate: true
+            onDelete: CASCADE
+            onUpdate: RESTRICT

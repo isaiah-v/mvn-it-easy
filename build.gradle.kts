@@ -8,7 +8,7 @@ plugins {
     application
 }
 
-group = "org.example"
+group = "org.ivcode"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -25,8 +25,21 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // MyBatis
+    implementation("org.mybatis:mybatis:3.5.14")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
+
+    // SpringDoc
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+
+    // Liquibase
+    implementation("org.liquibase:liquibase-core:4.25.1")
+
     // Freemarker
     implementation("org.freemarker:freemarker")
+
+    // DB Drivers
+    implementation("com.h2database:h2:2.2.224")
 
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
