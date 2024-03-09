@@ -1,7 +1,6 @@
 server:
   forward-headers-strategy: FRAMEWORK
 
-
 spring:
   liquibase:
     enabled: true
@@ -16,24 +15,6 @@ spring:
     username: mv
     password: password
 
-mvn:
-  root: ./mvn
-
-  # Authorization parameters
-  # security and user access
-  auth:
-    #auth type: Currently only supports "basic-auth-file"
-    type: basic-auth-file
-
-    # Admin credentials (optional)
-    # This is used to create an admin. If an admin exists, it's not needed
-    admin:
-      username: admin
-      password: password
-
-  repositories:
-    file-system:
-      path: ${mvn.root}/www
 
 logging.level:
   org.ivcode: TRACE
