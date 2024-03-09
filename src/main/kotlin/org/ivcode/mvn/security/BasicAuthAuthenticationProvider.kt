@@ -1,6 +1,7 @@
 package org.ivcode.mvn.security
 
-import org.ivcode.mvn.services.auth.BasicAuthService
+import org.ivcode.mvn.services.basicauth.BasicAuthRole
+import org.ivcode.mvn.services.basicauth.BasicAuthService
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -14,13 +15,15 @@ public class BasicAuthAuthenticationProvider (
         val username = authentication.name
         val password = authentication.credentials.toString()
 
-        val basicAuth = basicAuthService.authorize(username, password)
-        return if(basicAuth.isAuthorized) {
-            val authorities = basicAuth.roles.map { role -> SimpleGrantedAuthority(role.roleName()) }
-            UsernamePasswordAuthenticationToken(username, password, authorities)
+        val user = basicAuthService.getUser(username, password) ?: return authentication
+        val role = if (user.write) {
+            BasicAuthRole.MVN_PUBLISHER.roleName()
         } else {
-            authentication
+            BasicAuthRole.MVN_USER.roleName()
         }
+
+        val authorities = listOf(SimpleGrantedAuthority(role))
+        return UsernamePasswordAuthenticationToken(username, password, authorities)
     }
 
     override fun supports(authentication: Class<*>): Boolean {

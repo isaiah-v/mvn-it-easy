@@ -1,10 +1,8 @@
 package org.ivcode.mvn.config.auth
 
-import org.ivcode.mvn.services.auth.BasicAuthService
 import org.ivcode.mvn.security.BasicAuthAuthenticationProvider
-import org.ivcode.mvn.services.auth.models.REPOSITORY_MANAGER_READ_AUTHORITIES
-import org.ivcode.mvn.services.auth.models.REPOSITORY_MANAGER_WRITE_AUTHORITIES
-import org.ivcode.mvn.services.auth.models.REPOSITORY_WRITE_AUTHORITIES
+import org.ivcode.mvn.services.basicauth.BasicAuthService
+import org.ivcode.mvn.services.basicauth.MVN_WRITE_AUTHORITIES
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -41,22 +39,12 @@ public class AuthConfig {
             authorizeHttpRequests {
                 // Maven Repositories
                 // Note: The responsibility of determining of someone has read to given repo is determined by the controller
-                val repoWriteAuthorities = REPOSITORY_WRITE_AUTHORITIES.toTypedArray()
-                authorize(HttpMethod.POST, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
-                authorize(HttpMethod.PUT, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
-                authorize(HttpMethod.PATCH, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
-                authorize(HttpMethod.DELETE, "/mvn/**", hasAnyAuthority(*repoWriteAuthorities))
+                val mvnWriteAuthorities = MVN_WRITE_AUTHORITIES.toTypedArray()
+                authorize(HttpMethod.POST, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
+                authorize(HttpMethod.PUT, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
+                authorize(HttpMethod.PATCH, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
+                authorize(HttpMethod.DELETE, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
                 authorize("/mvn/**", permitAll)
-
-                // Maven Repository Manager
-                val repoManWrite = REPOSITORY_MANAGER_WRITE_AUTHORITIES.toTypedArray()
-                val repoManRead = REPOSITORY_MANAGER_READ_AUTHORITIES.toTypedArray()
-                authorize(HttpMethod.POST, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
-                authorize(HttpMethod.PUT, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
-                authorize(HttpMethod.PATCH, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
-                authorize(HttpMethod.DELETE, "/api/mvn/**", hasAnyAuthority(*repoManWrite))
-                authorize(HttpMethod.GET, "/api/mvn/**", hasAnyAuthority(*repoManRead))
-                authorize("/api/mvn/**", permitAll)
 
                 // Other
                 authorize("**", permitAll)

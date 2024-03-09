@@ -4,7 +4,7 @@ import freemarker.template.Template
 import jakarta.servlet.ServletContext
 import org.ivcode.mvn.services.dbfilesystem.DatabaseFileSystemService
 import org.ivcode.mvn.services.dbfilesystem.models.RepositoryInfo
-import org.ivcode.mvn.util.hasRepositoryReadAccess
+import org.ivcode.mvn.util.hasMvnReadAccess
 import org.ivcode.mvn.util.toFreemarkerDataModel
 import org.springframework.http.*
 import org.springframework.stereotype.Controller
@@ -36,7 +36,7 @@ public class MvnRepositoryController (
 
         // if a repository is private, anonymous users can't read from it
         // This check is only required for GET because the other cases are already handled
-        if(!repoInfo.public && !hasRepositoryReadAccess()) {
+        if(!repoInfo.public && !hasMvnReadAccess()) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .header("WWW-Authenticate", "Basic realm=\"Realm\"")
