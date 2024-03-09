@@ -18,9 +18,12 @@ import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.Path
 
+/**
+ * The controller for the maven repositories themselves. This is where artifacts are pulled from and published to.
+ */
 @Controller
 @RequestMapping(path = ["/mvn"])
-public class MvnRepositoryController (
+public class MvnRepoController (
     private val service: DatabaseFileSystemService,
     private val servletContext: ServletContext,
     private val directoryTemplate: Template,

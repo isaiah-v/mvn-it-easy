@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * The API interface for managing maven repositories.
+ */
 @RestController
 @RequestMapping(path = ["/api/mvn"])
-public class MvnRepositoryManagerController(
+public class MvnController(
     private val mvnRepositoryService: MvnRepositoryService
 ) {
 

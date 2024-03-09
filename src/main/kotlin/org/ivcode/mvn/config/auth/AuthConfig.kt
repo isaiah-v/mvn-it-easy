@@ -1,8 +1,10 @@
 package org.ivcode.mvn.config.auth
 
 import org.ivcode.mvn.security.BasicAuthAuthenticationProvider
+import org.ivcode.mvn.security.API_READ_ROLE_AUTHORITIES
+import org.ivcode.mvn.security.API_WRITE_ROLE_AUTHORITIES
 import org.ivcode.mvn.services.basicauth.BasicAuthService
-import org.ivcode.mvn.services.basicauth.MVN_WRITE_AUTHORITIES
+import org.ivcode.mvn.security.MVN_WRITE_ROLE_AUTHORITIES
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -37,13 +39,23 @@ public class AuthConfig {
 
         http {
             authorizeHttpRequests {
-                // Maven Repositories
-                // Note: The responsibility of determining of someone has read to given repo is determined by the controller
-                val mvnWriteAuthorities = MVN_WRITE_AUTHORITIES.toTypedArray()
+                // Maven
+                // Note: The responsibility of determining of someone has read access to given repo is determined by the controller
+                val mvnWriteAuthorities = MVN_WRITE_ROLE_AUTHORITIES.toTypedArray()
                 authorize(HttpMethod.POST, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
                 authorize(HttpMethod.PUT, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
                 authorize(HttpMethod.PATCH, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
                 authorize(HttpMethod.DELETE, "/mvn/**", hasAnyAuthority(*mvnWriteAuthorities))
+                authorize("/mvn/**", permitAll)
+
+                // API
+                val apiReadAuthorities = API_READ_ROLE_AUTHORITIES.toTypedArray()
+                val apiWriteAuthorities = API_WRITE_ROLE_AUTHORITIES.toTypedArray()
+                authorize(HttpMethod.POST, "/mvn/**", hasAnyAuthority(*apiWriteAuthorities))
+                authorize(HttpMethod.PUT, "/mvn/**", hasAnyAuthority(*apiWriteAuthorities))
+                authorize(HttpMethod.PATCH, "/mvn/**", hasAnyAuthority(*apiWriteAuthorities))
+                authorize(HttpMethod.DELETE, "/mvn/**", hasAnyAuthority(*apiWriteAuthorities))
+                authorize(HttpMethod.GET, "/mvn/**", hasAnyAuthority(*apiReadAuthorities))
                 authorize("/mvn/**", permitAll)
 
                 // Other

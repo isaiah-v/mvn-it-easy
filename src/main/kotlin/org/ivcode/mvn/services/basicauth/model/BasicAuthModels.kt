@@ -1,4 +1,4 @@
-package org.ivcode.mvn.services.basicauth
+package org.ivcode.mvn.services.basicauth.model
 
 public data class BasicAuthUser (
     val username: String,
