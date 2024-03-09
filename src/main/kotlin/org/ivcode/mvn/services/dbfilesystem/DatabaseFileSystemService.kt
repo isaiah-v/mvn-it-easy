@@ -13,7 +13,6 @@ import org.ivcode.mvn.services.dbfilesystem.models.DirectoryInfo
 import org.ivcode.mvn.services.dbfilesystem.models.RepositoryInfo
 import org.ivcode.mvn.services.dbfilesystem.models.PathInfo
 import org.springframework.http.MediaType
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional

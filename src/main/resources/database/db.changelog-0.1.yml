@@ -27,7 +27,8 @@ databaseChangeLog:
                   constraints:
                     - nullable: false
 
-  # File-Hierarchy Table
+  # File-System Table
+  # Represents the hierarchical file/folder structure
   - changeSet:
       id: 0.1.2
       author: isaiah.v
@@ -87,3 +88,39 @@ databaseChangeLog:
             validate: true
             onDelete: CASCADE
             onUpdate: RESTRICT
+
+  # Basic Auth:
+  # Only used to read/write to repositories. This is to support maven (doesn't support OAuth2). This does not grant API access.
+  - changeSet:
+      id: 0.1.3
+      author: isaiah.v
+      changes:
+        - createTable:
+            tableName: basic_auth
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    - primaryKey: true
+                    - nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    - nullable: false
+              # write: All users have read access. This property specifies if the user has write access
+              - column:
+                  name: write
+                  type: boolean
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: salt
+                  type: varchar(255)
+              - column:
+                  name: hash
+                  type: varchar(255)
+                  constraints:
+                    - nullable: false

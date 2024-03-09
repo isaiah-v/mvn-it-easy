@@ -1,36 +1,39 @@
 package org.ivcode.mvn.services.auth.models
 
 public enum class BasicAuthRole(
-    public val repositoryRead: Boolean,
-    public val repositoryWrite: Boolean,
-    public val repositoryManagerRead: Boolean,
-    public val repositoryManagerWrite: Boolean,
+    public val mvnRead: Boolean = false,
+    public val mvnWrite: Boolean = false,
+    public val apiRead: Boolean = false,
+    public val apiWrite: Boolean = false,
 ) {
-    USER (
-        repositoryRead = true,
-        repositoryWrite = false,
-        repositoryManagerRead = false,
-        repositoryManagerWrite = false
+    MVN_USER (
+        mvnRead = true
     ),
+
+    MVN_PUBLISHER (
+        mvnRead = true,
+        mvnWrite = true
+    ),
+
     ADMIN (
-        repositoryRead = true,
-        repositoryWrite = true,
-        repositoryManagerRead = true,
-        repositoryManagerWrite = true
+        mvnRead = true,
+        mvnWrite = true,
+        apiRead = true,
+        apiWrite = true
     );
 
     public companion object {
-        public fun repositoryReadRoles(): Set<BasicAuthRole> =
-            values().filter { it.repositoryRead }.toSet()
+        public fun mvnReadRoles(): Set<BasicAuthRole> =
+            values().filter { it.mvnRead }.toSet()
 
-        public fun repositoryWriteRoles(): Set<BasicAuthRole> =
-            values().filter { it.repositoryWrite }.toSet()
+        public fun mvnWriteRoles(): Set<BasicAuthRole> =
+            values().filter { it.mvnWrite }.toSet()
 
-        public fun repositoryManagerRead(): Set<BasicAuthRole> =
-            values().filter { it.repositoryManagerRead }.toSet()
+        public fun apiReadRoles(): Set<BasicAuthRole> =
+            values().filter { it.apiRead }.toSet()
 
-        public fun repositoryManagerWrite(): Set<BasicAuthRole> =
-            values().filter { it.repositoryManagerRead }.toSet()
+        public fun apiWriteRoles(): Set<BasicAuthRole> =
+            values().filter { it.apiWrite }.toSet()
     }
 
 
@@ -43,7 +46,7 @@ public enum class BasicAuthRole(
     }
 }
 
-public val REPOSITORY_READ_AUTHORITIES: Set<String> = BasicAuthRole.repositoryReadRoles().map { it.roleName() }.toSet()
-public val REPOSITORY_WRITE_AUTHORITIES: Set<String> = BasicAuthRole.repositoryWriteRoles().map { it.roleName() }.toSet()
-public val REPOSITORY_MANAGER_READ_AUTHORITIES: Set<String> = BasicAuthRole.repositoryReadRoles().map { it.roleName() }.toSet()
-public val REPOSITORY_MANAGER_WRITE_AUTHORITIES: Set<String> = BasicAuthRole.repositoryWriteRoles().map { it.roleName() }.toSet()
+public val MVN_READ_AUTHORITIES: Set<String> = BasicAuthRole.mvnReadRoles().map { it.roleName() }.toSet()
+public val MVN_WRITE_AUTHORITIES: Set<String> = BasicAuthRole.mvnWriteRoles().map { it.roleName() }.toSet()
+public val API_READ_AUTHORITIES: Set<String> = BasicAuthRole.apiReadRoles().map { it.roleName() }.toSet()
+public val API_WRITE_AUTHORITIES: Set<String> = BasicAuthRole.apiWriteRoles().map { it.roleName() }.toSet()
