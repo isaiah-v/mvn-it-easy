@@ -1,6 +1,6 @@
 package org.ivcode.mvn.security
 
-import org.ivcode.mvn.services.auth.models.BasicAuthRole
+import org.ivcode.mvn.services.basicauth.BasicAuthRole
 import org.ivcode.mvn.services.basicauth.BasicAuthService
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken

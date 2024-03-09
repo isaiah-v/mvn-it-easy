@@ -1,4 +1,4 @@
-package org.ivcode.mvn.services.auth.models
+package org.ivcode.mvn.services.basicauth
 
 public enum class BasicAuthRole(
     public val mvnRead: Boolean = false,

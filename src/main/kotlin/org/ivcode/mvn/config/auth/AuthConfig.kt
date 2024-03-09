@@ -1,8 +1,8 @@
 package org.ivcode.mvn.config.auth
 
 import org.ivcode.mvn.security.BasicAuthAuthenticationProvider
-import org.ivcode.mvn.services.auth.models.MVN_WRITE_AUTHORITIES
 import org.ivcode.mvn.services.basicauth.BasicAuthService
+import org.ivcode.mvn.services.basicauth.MVN_WRITE_AUTHORITIES
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod

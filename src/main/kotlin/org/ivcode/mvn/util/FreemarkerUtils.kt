@@ -10,14 +10,12 @@ public fun DirectoryInfo.toFreemarkerDataModel(): Map<String, Any?> = mapOf(
     "name" to this.name,
     "directories" to (
             this.children
-                ?.filter { c -> c.isDirectory }
-                ?.sortedBy { it.name }
-                ?:emptyList()
+                .filter { c -> c.isDirectory }
+                .sortedBy { it.name }
     ),
     "files" to (
             this.children
-                ?.filter { c -> !c.isDirectory }
-                ?.sortedBy { it.name }
-                ?:emptyList()
+                .filter { c -> !c.isDirectory }
+                .sortedBy { it.name }
     )
 )

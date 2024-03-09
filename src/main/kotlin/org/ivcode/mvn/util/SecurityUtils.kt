@@ -1,6 +1,6 @@
 package org.ivcode.mvn.util
 
-import org.ivcode.mvn.services.auth.models.MVN_READ_AUTHORITIES
+import org.ivcode.mvn.services.basicauth.MVN_READ_AUTHORITIES
 import org.springframework.security.core.context.SecurityContextHolder
 
 public fun getAuthorities(): List<String> = SecurityContextHolder
