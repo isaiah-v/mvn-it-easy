@@ -10,32 +10,32 @@ import org.apache.ibatis.annotations.Update
 import org.ivcode.mvn.repositories.model.BasicAuthEntity
 
 private const val CREATE_BASIC_AUTH = """
- INSERT INTO BASIC_AUTH (USERNAME, WRITE, SALT, HASH)
+ INSERT INTO basic_auth (`username`, `write`, `salt`, `hash`)
  VALUES(#{username}, #{write}, #{salt}, #{hash})
 """
 
 private const val READ_BASIC_AUTH = """
- SELECT * FROM BASIC_AUTH WHERE USERNAME=#{username}
+ SELECT * FROM basic_auth WHERE `username`=#{username}
 """
 
 private const val READ_BASIC_AUTH_ALL = """
- SELECT * FROM BASIC_AUTH
+ SELECT * FROM basic_auth
 """
 
 private const val UPDATE_BASIC_AUTH = """
- UPDATE BASIC_AUTH
- SET USERNAME=#{username}, WRITE=#{write}, SALT=#{salt}, HASH=#{hash}
- WHERE ID=#{id}
+ UPDATE basic_auth
+ SET `username`=#{username}, `write`=#{write}, `salt`=#{salt}, `hash`=#{hash}
+ WHERE `id`=#{id}
 """
 
 private const val DELETE_BASIC_AUTH = """
- DELETE FROM BASIC_AUTH
- WHERE ID=#{id}
+ DELETE FROM basic_auth
+ WHERE `id`=#{id}
 """
 
 private const val DELETE_BASIC_AUTH_BY_USERNAME = """
- DELETE FROM BASIC_AUTH
- WHERE USERNAME=#{username}
+ DELETE FROM basic_auth
+ WHERE `username`=#{username}
 """
 
 @Mapper

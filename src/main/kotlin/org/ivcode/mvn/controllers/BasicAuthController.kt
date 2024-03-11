@@ -5,6 +5,7 @@ import org.ivcode.mvn.services.basicauth.model.BasicAuthUser
 import org.ivcode.mvn.services.basicauth.model.CreateBasicAuthUser
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -22,7 +23,9 @@ public class BasicAuthController(
         basicAuthService.listUsers()
 
     @PostMapping
-    public fun createUser(createBasicAuthUser: CreateBasicAuthUser) {
+    public fun createUser(
+        @RequestBody createBasicAuthUser: CreateBasicAuthUser
+    ) {
         basicAuthService.createUser(
             createBasicAuthUser.username,
             createBasicAuthUser.password,

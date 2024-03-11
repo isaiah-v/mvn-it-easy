@@ -8,118 +8,118 @@ import java.io.InputStream
 
 
 public const val SELECT_HIERARCHY_H2: String = """
- WITH LINK(ID, LEVEL) AS (
-  SELECT ID, 1
-  FROM FILE_SYSTEM f
+ WITH link(`id`, `level`) AS (
+  SELECT id, 1
+  FROM file_system f
   WHERE
-   f.PARENT_ID IS NULL
-   AND f.REPOSITORY_ID=#{repositoryId}
-   AND f.NAME=CAST(#{path} AS VARCHAR ARRAY)[1]
+   f.`parent_id` IS NULL
+   AND f.`repository_id`=#{repositoryId}
+   AND f.`name`=CAST(#{path} AS VARCHAR ARRAY)[1]
 
   UNION ALL
 
-  SELECT FILE_SYSTEM.ID, LEVEL+1
-  FROM LINK INNER JOIN FILE_SYSTEM ON LINK.ID = FILE_SYSTEM.PARENT_ID
+  SELECT file_system.`id`, `level`+1
+  FROM LINK INNER JOIN `file_system` ON link.`id` = file_system.`parent_id`
   WHERE
-   LEVEL<CARDINALITY(CAST(#{path} AS VARCHAR ARRAY))
-   AND FILE_SYSTEM.NAME=CAST(#{path} AS VARCHAR ARRAY)[LEVEL+1]
+   `level`<CARDINALITY(CAST(#{path} AS VARCHAR ARRAY))
+   AND file_system.`name`=CAST(#{path} AS VARCHAR ARRAY)[LEVEL+1]
  )
  SELECT
-  FILE_SYSTEM.ID,
-  FILE_SYSTEM.REPOSITORY_ID,
-  FILE_SYSTEM.PARENT_ID,
-  FILE_SYSTEM.NAME,
-  FILE_SYSTEM.DIRECTORY,
-  FILE_SYSTEM.LAST_MODIFIED,
-  FILE_SYSTEM.MIME,
-  LENGTH(FILE_SYSTEM.DATA) AS SIZE
+  file_system.`id`,
+  file_system.`repository_id`,
+  file_system.`parent_id`,
+  file_system.`name`,
+  file_system.`directory`,
+  file_system.`last_modified`,
+  file_system.`mime`,
+  LENGTH(file_system.DATA) AS `size`
  FROM
-  LINK
-  INNER JOIN FILE_SYSTEM ON LINK.ID = FILE_SYSTEM.ID ORDER BY LEVEL
+  link
+  INNER JOIN file_system ON link.`id` = file_system.`id` ORDER BY `level`
 """
 
 public const val SELECT_PATH: String = """<script>
  SELECT
-  f${"\${path.length-1}"}.ID,
-  f${"\${path.length-1}"}.REPOSITORY_ID,
-  f${"\${path.length-1}"}.PARENT_ID,
-  f${"\${path.length-1}"}.NAME,
-  f${"\${path.length-1}"}.DIRECTORY,
-  f${"\${path.length-1}"}.LAST_MODIFIED,
-  f${"\${path.length-1}"}.MIME,
-  LENGTH(f${"\${path.length-1}"}.DATA) AS SIZE
+  f${"\${path.length-1}"}.`id`,
+  f${"\${path.length-1}"}.`repository_id`,
+  f${"\${path.length-1}"}.`parent_id`,
+  f${"\${path.length-1}"}.`name`,
+  f${"\${path.length-1}"}.`directory`,
+  f${"\${path.length-1}"}.`last_modified`,
+  f${"\${path.length-1}"}.`mime`,
+  LENGTH(f${"\${path.length-1}"}.`data`) AS `size`
  FROM
   <foreach item="entry" index="index" collection="path" separator=" INNER JOIN " nullable="true">
-   FILE_SYSTEM f${"\${index}"} <if test="index>0">ON f${"\${index-1}"}.ID = f${"\${index}"}.PARENT_ID</if>
+   file_system f${"\${index}"} <if test="index>0">ON f${"\${index-1}"}.ID = f${"\${index}"}.PARENT_ID</if>
   </foreach>
  WHERE
   <foreach item="entry" index="index" collection="path" separator=" AND " nullable="true">
-   f${"\${index}"}.NAME=#{entry}
+   f${"\${index}"}.`name`=#{entry}
   </foreach>
-  AND f0.PARENT_ID IS NULL
-  AND f0.REPOSITORY_ID=#{repositoryId}
+  AND f0.`parent_id` IS NULL
+  AND f0.`repository_id`=#{repositoryId}
 </script>"""
 
 public const val CREATE_FILE_SYSTEM_ENTRY: String = """
- INSERT INTO FILE_SYSTEM (REPOSITORY_ID, PARENT_ID, NAME, DIRECTORY)
+ INSERT INTO file_system (`repository_id`, `parent_id`, `name`, `directory`)
  VALUES(#{repositoryId}, #{parentId}, #{name}, #{directory})
 """
 
 public const val CREATE_FILE_SYSTEM_DIRECTORY_ENTRY: String = """
- INSERT INTO FILE_SYSTEM (REPOSITORY_ID, PARENT_ID, NAME, DIRECTORY)
+ INSERT INTO file_system (`repository_id`, `parent_id`, `name`, `directory`)
  VALUES(#{repositoryId}, #{parentId}, #{name}, TRUE)
 """
 
 public const val CREATE_FILE_SYSTEM_FILE_ENTRY: String = """
- INSERT INTO FILE_SYSTEM (REPOSITORY_ID, PARENT_ID, NAME, LAST_MODIFIED, MIME, DIRECTORY, DATA)
+ INSERT INTO file_system (`repository_id`, `parent_id`, `name`, `last_modified`, `mime`, `directory`, `data`)
  VALUES(#{entry.repositoryId}, #{entry.parentId}, #{entry.name}, CURRENT_TIMESTAMP(), #{entry.mime}, FALSE, #{data})
 """
 
 public const val READ_ENTRY: String = """
- SELECT ID, REPOSITORY_ID, PARENT_ID, NAME, DIRECTORY, LAST_MODIFIED, MIME, LENGTH(DATA) AS SIZE FROM FILE_SYSTEM WHERE id=#{id}
+ SELECT `id`, `repository_id`, `parent_id`, `name`, `directory`, `last_modified`, `mime`, LENGTH(`data`) AS `size` FROM file_system WHERE `id`=#{id}
 """
 
 public const val READ_DATA: String = """
- SELECT DATA FROM FILE_SYSTEM WHERE id=#{id}
+ SELECT `DATA` FROM file_system WHERE `id`=#{id}
 """
 
 public const val READ_CHILDREN: String = """
- SELECT ID, REPOSITORY_ID, PARENT_ID, NAME, DIRECTORY, LAST_MODIFIED, MIME, LENGTH(DATA) AS SIZE FROM FILE_SYSTEM WHERE parent_id=#{parentId}
+ SELECT `id`, `repository_id`, `parent_id`, `name`, `directory`, `last_modified`, `mime`, LENGTH(`data`) AS `size` FROM file_system WHERE `parent_id`=#{parentId}
 """
 
 public const val READ_ROOT_CHILDREN: String = """
- SELECT ID, REPOSITORY_ID, PARENT_ID, NAME, DIRECTORY, LAST_MODIFIED, MIME, LENGTH(DATA) AS SIZE FROM FILE_SYSTEM WHERE repository_id=#{repositoryId} AND parent_id IS NULL
+ SELECT `id`, `repository_id`, `parent_id`, `name`, `directory`, `last_modified`, `mime`, LENGTH(`data`) AS `size` FROM file_system WHERE `repository_id`=#{repositoryId} AND `parent_id` IS NULL
 """
 
 public const val IS_EMPTY_DIRECTORY: String = """
- SELECT COUNT(*)=0 AS EMPTY FROM FILE_SYSTEM WHERE parent_id=#{id}
+ SELECT COUNT(*)=0 AS `empty` FROM file_system WHERE `parent_id`=#{id}
 """
 
 public const val UPDATE_FILE_SYSTEM_ENTRY: String = """
- UPDATE FILE_SYSTEM
- SET REPOSITORY_ID=#{repositoryId}, PARENT_ID=#{parentId}, NAME=#{name}, DIRECTORY=#{directory}
- WHERE ID=#{id}
+ UPDATE file_system
+ SET `repository_id`=#{repositoryId}, `parent_id`=#{parentId}, `name`=#{name}, `directory`=#{directory}
+ WHERE `ID`=#{id}
 """
 
 public const val UPDATE_FILE_ENTRY: String = """
  UPDATE
-  FILE_SYSTEM
+  file_system
  SET
-  REPOSITORY_ID=#{entry.repositoryId},
-  PARENT_ID=#{entry.parentId},
-  NAME=#{entry.name},
-  LAST_MODIFIED=CURRENT_TIMESTAMP(),
-  MIME=#{entry.mime},
-  DATA=#{data}
- WHERE ID=#{entry.id}
+  `repository_id`=#{entry.repositoryId},
+  `parent_id`=#{entry.parentId},
+  `name`=#{entry.name},
+  `last_modified`=CURRENT_TIMESTAMP(),
+  `mime`=#{entry.mime},
+  `data`=#{data}
+ WHERE `id`=#{entry.id}
 """
 
 public const val DELETE_FILE_SYSTEM_ENTRY: String = """
- DELETE FROM FILE_HIERARCHY WHERE ID=#{id}
+ DELETE FROM file_system WHERE `id`=#{id}
 """
 
 public const val DELETE_ROOT: String = """
- DELETE FROM FILE_HIERARCHY REPOSITORY_ID=#{repositoryId} AND parent_id IS NULL
+ DELETE FROM file_system WHERE `repository_id`=#{repositoryId} AND `parent_id` IS NULL
 """
 
 @Mapper
