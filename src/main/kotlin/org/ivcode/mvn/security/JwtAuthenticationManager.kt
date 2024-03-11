@@ -12,7 +12,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * This uses spring's jwt validation but adds logic for assigning additional authorities
  */
 public class JwtAuthenticationManager (
-    jwtDecoder: JwtDecoder
+    jwtDecoder: JwtDecoder,
+    private val admins: List<String>
 ): AuthenticationManager {
 
     private val provider: JwtAuthenticationProvider = JwtAuthenticationProvider(jwtDecoder)
@@ -21,7 +22,12 @@ public class JwtAuthenticationManager (
         val auth = provider.authenticate(authentication) as JwtAuthenticationToken
         val authorities = auth.authorities.toMutableList()
 
-        authorities.add(SimpleGrantedAuthority(Role.USER.roleName()))
+        val email = auth.token.getClaim<String>("email")
+        if(email!=null && admins.contains(email)) {
+            authorities.add(SimpleGrantedAuthority(Role.ADMIN.roleName()))
+        } else {
+            authorities.add(SimpleGrantedAuthority(Role.USER.roleName()))
+        }
 
         return JwtAuthenticationToken (
             auth.token,

@@ -43,9 +43,9 @@ public class AuthConfig {
         http: HttpSecurity,
         basicAuthMan: AuthenticationManager,
         jwtDecoder: JwtDecoder,
-        @Value("\${security.oauth2.admin}") adminQuery: String,
+        @Value("\${security.oauth2.admin}") admins: String,
     ): SecurityFilterChain {
-        val jwtAuthMan = JwtAuthenticationManager(jwtDecoder)
+        val jwtAuthMan = JwtAuthenticationManager(jwtDecoder, admins.split(","))
         http.authenticationManager(basicAuthMan)
 
         http {

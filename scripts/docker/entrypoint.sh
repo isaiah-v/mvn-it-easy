@@ -1,31 +1,64 @@
 #!/bin/sh
 
-# Set Default Parameters
+# Default Values
 set -- \
   "-Dserver.forward-headers-strategy=FRAMEWORK" \
-  "-Dmvn.auth.type=basic-auth-file" \
-  "-Dmvn.auth.basic-auth-file.password-file=/data/mvn.password" \
-  "-Dmvn.snapshot.type=file-system" \
-  "-Dmvn.snapshot.file-system.repository=/data/www/snapshot" \
-  "-Dmvn.release.type=file-system" \
-  "-Dmvn.release.file-system.repository=/data/www/release" \
+  "-Dspring.liquibase.enabled=true" \
+  "-Dspring.liquibase.change-log=classpath:/database/db.changelog-root.yml" \
 
-# Set if the snapshot repo is public
-if [ -n "$MVN_AUTH_PUBLIC_SNAPSHOT" ]; then
-  set -- "$@" "-Dmvn.auth.public.snapshot=$MVN_AUTH_PUBLIC_SNAPSHOT"
+# MAX_FILE_SIZE
+# spring.servlet.multipart.max-file-size
+if [ -n "$MAX_FILE_SIZE" ]; then
+  set -- "$@" "-Dspring.servlet.multipart.max-file-size=$MAX_FILE_SIZE"
 else
-  set -- "$@" "-Dmvn.auth.public.snapshot=false"
+  set -- "$@" "-Dspring.servlet.multipart.max-file-size=100MB"
 fi
 
-# Set if the release repo is public
-if [ -n "$MVN_AUTH_PUBLIC_RELEASE" ]; then
-  set -- "$@" "-Dmvn.auth.public.release=$MVN_AUTH_PUBLIC_RELEASE"
+# MAX_REQUEST_SIZE
+# spring.servlet.multipart.max-request-size
+if [ -n "$MAX_REQUEST_SIZE" ]; then
+  set -- "$@" "-Dspring.servlet.multipart.max-request-size=$MAX_REQUEST_SIZE"
 else
-  set -- "$@" "-Dmvn.auth.public.release=false"
+  set -- "$@" "-Dspring.servlet.multipart.max-request-size=100MB"
 fi
 
-# Set default admin
-[ -n "$MVN_AUTH_ADMIN_USERNAME" ] && set -- "$@" "-Dmvn.auth.admin.username=$MVN_AUTH_ADMIN_USERNAME"
-[ -n "$MVN_AUTH_ADMIN_PASSWORD" ] && set -- "$@" "-Dmvn.auth.admin.password=$MVN_AUTH_ADMIN_PASSWORD"
+# DATASOURCE_URL
+# spring.datasource.url
+if [ -n "$DATASOURCE_URL" ]; then
+  set -- "$@" "-Dspring.datasource.url=$DATASOURCE_URL"
+else
+  set -- "$@" "-Dspring.datasource.url=jdbc:h2:file:./data/mvn"
+fi
+
+# DATASOURCE_USERNAME
+# spring.datasource.username
+if [ -n "$DATASOURCE_USERNAME" ]; then
+  set -- "$@" "-Dspring.datasource.username=$DATASOURCE_USERNAME"
+else
+  set -- "$@" "-Dspring.datasource.username=mvn"
+fi
+
+# DATASOURCE_PASSWORD
+# spring.datasource.username
+if [ -n "$DATASOURCE_PASSWORD" ]; then
+  set -- "$@" "-Dspring.datasource.password=$DATASOURCE_PASSWORD"
+else
+  set -- "$@" "-Dspring.datasource.password=password"
+fi
+
+# OAUTH2_ISSUER
+# security.oauth2.issuer-url
+if [ -n "$OAUTH2_ISSUER" ]; then
+  set -- "$@" "-Dsecurity.oauth2.issuer-url=$OAUTH2_ISSUER"
+else
+  echo "OAUTH2_ISSUER required" >&2
+  exit 1
+fi
+
+# OAUTH2_ADMINS
+# security.oauth2.admin
+if [ -n "$OAUTH2_ADMINS" ]; then
+  set -- "$@" "-Dsecurity.oauth2.admin=$OAUTH2_ADMINS"
+fi
 
 java "$@" -jar app.jar

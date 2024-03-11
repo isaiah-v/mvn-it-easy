@@ -11,7 +11,7 @@ spring:
     max-request-size: 100MB
 
   datasource:
-    url: jdbc:h2:file:./h2/home-portal
+    url: jdbc:h2:file:./h2/mvn
     username: mv
     password: password
 
