@@ -15,6 +15,10 @@ spring:
     username: mv
     password: password
 
+security:
+  oauth2:
+    admin: admin@domain.com
+    issuer-url: http://localhost:8081/auth/realms/master
 
 logging.level:
   org.ivcode: TRACE

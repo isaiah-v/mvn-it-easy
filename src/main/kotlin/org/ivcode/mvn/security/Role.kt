@@ -38,7 +38,7 @@ public enum class Role (
      */
     USER (
         mvnRead = true,
-        apiWrite = true
+        apiRead = true
     ),
 
     /**
