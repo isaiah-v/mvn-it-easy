@@ -1,6 +1,5 @@
 package org.ivcode.mvn.security
 
-import org.ivcode.mvn.services.basicauth.BasicAuthRole
 import org.ivcode.mvn.services.basicauth.BasicAuthService
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -17,9 +16,9 @@ public class BasicAuthAuthenticationProvider (
 
         val user = basicAuthService.getUser(username, password) ?: return authentication
         val role = if (user.write) {
-            BasicAuthRole.MVN_PUBLISHER.roleName()
+            Role.MVN_PUBLISHER.roleName()
         } else {
-            BasicAuthRole.MVN_USER.roleName()
+            Role.MVN_USER.roleName()
         }
 
         val authorities = listOf(SimpleGrantedAuthority(role))

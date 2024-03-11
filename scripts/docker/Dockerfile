@@ -26,6 +26,8 @@ ARG PROJECT_VERSION
 
 RUN apk --no-cache add curl
 
+WORKDIR /app
+
 COPY build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar app.jar
 COPY scripts/docker/entrypoint.sh entrypoint.sh
 

@@ -3,6 +3,7 @@ package org.ivcode.mvn.services.basicauth
 import org.ivcode.mvn.exceptions.NotFoundException
 import org.ivcode.mvn.repositories.BasicAuthDao
 import org.ivcode.mvn.repositories.model.BasicAuthEntity
+import org.ivcode.mvn.services.basicauth.model.BasicAuthUser
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
