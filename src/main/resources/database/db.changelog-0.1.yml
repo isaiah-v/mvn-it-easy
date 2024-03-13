@@ -110,6 +110,7 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     - nullable: false
+                    - unique: true
               # write: All users have read access. This property specifies if the user has write access
               - column:
                   name: write

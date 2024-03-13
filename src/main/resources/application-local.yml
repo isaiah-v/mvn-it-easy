@@ -10,9 +10,16 @@ spring:
     max-file-size: 100MB
     max-request-size: 100MB
 
+  # h2
+# datasource:
+#   url: jdbc:h2:file:./h2/mvn
+#   username: mvn
+#   password: password
+
+  # MySQL
   datasource:
-    url: jdbc:h2:file:./h2/mvn
-    username: mv
+    url: jdbc:mysql://localhost:3306/mvn?allowPublicKeyRetrieval=true
+    username: mvn
     password: password
 
 security:
