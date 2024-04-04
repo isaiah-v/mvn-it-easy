@@ -32,6 +32,6 @@ COPY build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar app.jar
 COPY scripts/docker/entrypoint.sh entrypoint.sh
 
 HEALTHCHECK --timeout=5s --start-period=30s \
-  CMD curl -f http://localhost:8080 || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1
 
 CMD ["sh", "./entrypoint.sh"]

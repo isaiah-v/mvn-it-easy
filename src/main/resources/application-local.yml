@@ -1,4 +1,5 @@
 server:
+  port: 8081
   forward-headers-strategy: FRAMEWORK
 
 spring:
@@ -25,7 +26,7 @@ spring:
 security:
   oauth2:
     admin: admin@domain.com
-    issuer-url: http://localhost:8081/auth/realms/master
+    issuer-url: http://localhost:8080/realms/build
 
 logging.level:
   org.ivcode: TRACE
