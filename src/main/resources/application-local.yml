@@ -1,5 +1,23 @@
+# Local Setup
+#
+# -= Docker-Compose =-
+# cd ./scripts/dev && docker compose up -d
+#
+# -= Keycloak Logins =-
+# URL: http://localhost:8081/auth/admin/
+# Admin: admin/password
+# User: user/password
+#
+# -= Oauth2 Setup =-
+# Grant Type: authorization_code
+# Authorization URL: http://localhost:8081/auth/realms/master/protocol/openid-connect/auth
+# Token URL: http://localhost:8081/auth/realms/master/protocol/openid-connect/token
+# Client ID: iv-mvn
+# Client Secret: XKNTocHpUfEhTC01Ve1jyDec6DDtDOVD
+# Redirect URI: http://localhost
+
 server:
-  port: 8081
+  port: 8080
   forward-headers-strategy: FRAMEWORK
 
 spring:
@@ -26,7 +44,7 @@ spring:
 security:
   oauth2:
     admin: admin@domain.com
-    issuer-url: http://localhost:8080/realms/build
+    issuer-url: http://localhost:8081/auth/realms/master
 
 logging.level:
   org.ivcode: TRACE
