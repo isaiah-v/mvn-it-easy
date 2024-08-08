@@ -125,3 +125,13 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     - nullable: false
+
+  # File-System Filename Constraint
+  - changeSet:
+      id: 0.1.4
+      author: isaiah.v
+      changes:
+        - addUniqueConstraint:
+            columnNames: repository_id, parent_id, name
+            constraintName: unique_fs_name
+            tableName: file_system

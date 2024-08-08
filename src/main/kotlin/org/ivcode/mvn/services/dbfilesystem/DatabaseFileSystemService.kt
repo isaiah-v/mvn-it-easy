@@ -12,6 +12,7 @@ import org.ivcode.mvn.services.dbfilesystem.models.DirectoryChildInfo
 import org.ivcode.mvn.services.dbfilesystem.models.DirectoryInfo
 import org.ivcode.mvn.services.dbfilesystem.models.RepositoryInfo
 import org.ivcode.mvn.services.dbfilesystem.models.PathInfo
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
@@ -31,6 +32,7 @@ public class DatabaseFileSystemService (
     private val fileSystemDto: FileSystemDao
 ) {
     private val root: Path = Path("")
+    private val logger = LoggerFactory.getLogger(DatabaseFileSystemService::class.java)
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public fun getRepositoryInfo(name: String): RepositoryInfo {
@@ -113,34 +115,7 @@ public class DatabaseFileSystemService (
             throw ConflictException()
         }
 
-        var parentId:Long? = null
-        // make sure the path exists
-        for(i in 0..<pathArray.size-1) {
-            val name = pathArray[i]
-            val entry = if (entries.size>i) entries[i] else null
-
-            if(entry!=null) {
-                // set parent id for next iteration
-                parentId = entry.id
-            } else {
-                val e = FileSystemDirectoryEntity(
-                    repositoryId = repo.id,
-                    parentId = parentId,
-                    name = name
-                )
-                fileSystemDto.createDirectoryEntry(e)
-
-                // set parent id for next iteration
-                parentId = e.id!!
-            }
-        }
-
-        fileSystemDto.createFileEntry(FileSystemFileEntity(
-            repositoryId = repo.id,
-            parentId = parentId,
-            name = path.name,
-            mime = getMime(path)
-        ), data)
+        saveNewFile(path, pathArray, entries, repo, data)
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -162,16 +137,30 @@ public class DatabaseFileSystemService (
                 throw ConflictException()
             }
 
-            fileSystemDto.updateFileEntry(FileSystemFileEntity(
-                repositoryId = entity.id,
+            val count = fileSystemDto.updateFileEntry(FileSystemFileEntity(
+                id = entity.id,
+                repositoryId = entity.repositoryId,
                 parentId = entity.parentId,
                 name = entity.name,
                 mime = entity.mime
             ), data)
+            if(count==0) {
+                logger.warn("Failed to update file: $path")
+            }
 
             return
         }
 
+        saveNewFile(path, pathArray, entries, repo, data)
+    }
+
+    private fun saveNewFile(
+        path: Path,
+        pathArray: Array<String?>,
+        entries: List<FileInfoEntity>,
+        repo: RepositoryInfo,
+        data: InputStream
+    ) {
         var parentId:Long? = null
         // make sure the path exists
         for(i in 0..<pathArray.size-1) {
@@ -250,10 +239,10 @@ public class DatabaseFileSystemService (
     }
 
     private fun Path.isRoot(): Boolean =
-        equals(this@DatabaseFileSystemService.root)
+        this == this@DatabaseFileSystemService.root
 
     private fun Path.toList() =
-        map { p -> p.name }
+        map { it.name }
 
     /**
      * Returns the Mime for the given file. If the file is a directory, `null` is returned
@@ -264,7 +253,7 @@ public class DatabaseFileSystemService (
         }
 
         return when(file.extension.lowercase()) {
-            "xml", "pom" ->
+            "xml", "pom", "module" ->
                 MediaType.TEXT_XML_VALUE
             "md5", "sha1", "sha256", "sha512" ->
                 MediaType.TEXT_PLAIN_VALUE
