@@ -253,10 +253,12 @@ public class DatabaseFileSystemService (
         }
 
         return when(file.extension.lowercase()) {
-            "xml", "pom", "module" ->
+            "xml", "pom" ->
                 MediaType.TEXT_XML_VALUE
             "md5", "sha1", "sha256", "sha512" ->
                 MediaType.TEXT_PLAIN_VALUE
+            "module" ->
+                MediaType.APPLICATION_JSON_VALUE
             else ->
                 MediaType.APPLICATION_OCTET_STREAM_VALUE
         }
