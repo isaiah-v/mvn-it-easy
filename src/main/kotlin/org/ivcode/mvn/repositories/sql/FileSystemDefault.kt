@@ -23,13 +23,28 @@ internal const val FILE_SYSTEM_SELECT_PATH: String = """<script>
 </script>"""
 
 internal const val FILE_SYSTEM_CREATE_DIRECTORY_ENTRY: String = """
- INSERT INTO file_system (`repository_id`, `parent_id`, `name`, `directory`)
- VALUES(#{repositoryId}, #{parentId}, #{name}, TRUE)
+ INSERT INTO file_system (`repository_id`, `parent_id`, `path_id`, `name`, `directory`)
+ VALUES(#{repositoryId}, #{parentId}, IFNULL(#{parentId},0), #{name}, TRUE)
+ ON DUPLICATE KEY UPDATE
+   `repository_id`=#{repositoryId},
+   `parent_id`=#{parentId},
+   `path_id`=IFNULL(#{parentId},0),
+   `name`=#{name},
+   `directory`=TRUE
 """
 
 internal const val FILE_SYSTEM_CREATE_FILE_ENTRY: String = """
- INSERT INTO file_system (`repository_id`, `parent_id`, `name`, `last_modified`, `mime`, `directory`, `data`)
- VALUES(#{entry.repositoryId}, #{entry.parentId}, #{entry.name}, CURRENT_TIMESTAMP(), #{entry.mime}, FALSE, #{data})
+ INSERT INTO file_system (`repository_id`, `parent_id`, `path_id`, `name`, `last_modified`, `mime`, `directory`, `data`)
+ VALUES(#{entry.repositoryId}, #{entry.parentId}, IFNULL(#{entry.parentId},0), #{entry.name}, CURRENT_TIMESTAMP(), #{entry.mime}, FALSE, #{data})
+ ON DUPLICATE KEY UPDATE
+    `repository_id`=#{entry.repositoryId},
+    `parent_id`=#{entry.parentId},
+    `path_id`=IFNULL(#{entry.parentId},0),
+    `name`=#{entry.name},
+    `last_modified`=CURRENT_TIMESTAMP(),
+    `mime`=#{entry.mime},
+    `directory`=FALSE,
+    `data`=#{data}
 """
 
 internal const val FILE_SYSTEM_READ_ENTRY: String = """
@@ -58,6 +73,7 @@ internal const val FILE_SYSTEM_UPDATE_FILE_ENTRY: String = """
  SET
   `repository_id`=#{entry.repositoryId},
   `parent_id`=#{entry.parentId},
+  `path_id`=IFNULL(#{entry.parentId},0),
   `name`=#{entry.name},
   `last_modified`=CURRENT_TIMESTAMP(),
   `mime`=#{entry.mime},

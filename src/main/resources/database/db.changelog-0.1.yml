@@ -51,6 +51,13 @@ databaseChangeLog:
               - column:
                   name: parent_id
                   type: bigint
+              # The path_id represents a non-null identifier for the path.
+              # Note: This value is tied to the parent_id and is used in the unique constraint.
+              - column:
+                  name: path_id
+                  type: bigint
+                  constraints:
+                    - nullable: false
               - column:
                   name: name
                   type: varchar(255)
@@ -88,6 +95,15 @@ databaseChangeLog:
             validate: true
             onDelete: CASCADE
             onUpdate: RESTRICT
+        - addUniqueConstraint:
+            columnNames: repository_id, path_id, name
+            constraintName: unique_fs_name
+            tableName: file_system
+        - addDefaultValue:
+            columnName: path_id
+            columnDataType: bigint
+            defaultValue: 0
+            tableName: file_system
 
   # Basic Auth:
   # Only used to read/write to repositories. This is to support maven (doesn't support OAuth2). This does not grant API access.
@@ -126,12 +142,3 @@ databaseChangeLog:
                   constraints:
                     - nullable: false
 
-  # File-System Filename Constraint
-  - changeSet:
-      id: 0.1.4
-      author: isaiah.v
-      changes:
-        - addUniqueConstraint:
-            columnNames: repository_id, parent_id, name
-            constraintName: unique_fs_name
-            tableName: file_system
